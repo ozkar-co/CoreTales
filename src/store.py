@@ -391,6 +391,14 @@ class Store:
                 )
             added += 1
 
+    def _familia_de(self, empuje_id: str) -> str | None:
+        row = self.conn.execute(
+            "SELECT familia FROM empujes WHERE id = ?", (empuje_id,)
+        ).fetchone()
+        if row and row["familia"]:
+            return row["familia"]
+        return None
+
     def _empuje_de(self, table: str, ident: str) -> str | None:
         row = self.conn.execute(
             f"SELECT empuje FROM {table} WHERE id = ?", (ident,)
@@ -415,6 +423,14 @@ class Store:
         loc = self._entity(scene.get("location"))
         if loc and loc.get("tipo_lugar"):
             out.append(("tipo_lugar", loc["tipo_lugar"]))
+            emp = None
+            if scene.get("atmosfera"):
+                emp = self._empuje_de("atmosferas", scene["atmosfera"])
+            if not emp and scene.get("tropo"):
+                emp = self._empuje_de("tropos", scene["tropo"])
+            fam = self._familia_de(emp) if emp else None
+            if fam:
+                out.append(("cruce", f"{loc['tipo_lugar']}+{fam}"))
         pc = self._entity(scene.get("pc"))
         if pc and pc.get("tipo_personaje"):
             out.append(("tipo_personaje", pc["tipo_personaje"]))

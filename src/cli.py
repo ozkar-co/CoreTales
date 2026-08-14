@@ -4,15 +4,16 @@ from __future__ import annotations
 
 import sys
 
-from adapters.llamacpp import LlamaCppAdapter
+from adapters.select import adapter_label, make_adapter
 from engine import Engine
 from store import DEFAULT_SAVE
 
 
 def main() -> None:
-    engine = Engine(LlamaCppAdapter(), save_path=DEFAULT_SAVE)
+    llm = make_adapter()
+    engine = Engine(llm, save_path=DEFAULT_SAVE)
     print(
-        f"CoreTales. Partida: {DEFAULT_SAVE.name}. "
+        f"CoreTales. LLM: {adapter_label(llm)}. Partida: {DEFAULT_SAVE.name}. "
         "Escribe lo que haces. Ctrl-D para salir.",
         file=sys.stderr,
     )

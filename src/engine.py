@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from adapter import LlmAdapter
-from adapters.llamacpp import INTENT_SCHEMA
+from adapters.schema import INTENT_SCHEMA
 from jsonutil import parse_intent
 from prompt import NARRATE_SYSTEM, RETRY_HINT, TRANSLATE_SYSTEM
 from store import DEFAULT_SAVE, Store

@@ -2,14 +2,32 @@
 
 Formato: TSV UTF-8, primera línea cabecera, `#` ignora.
 
-- tropos, tipos_historia, tipos_personaje, tipos_lugar, atmosferas: anclas (set cerrado).
-- frases: nube (muchas filas por ancla). Enriquecer a mano = añadir filas y `python3 scripts/import_catalog.py`.
+## Qué hay
+
+- `empujes.txt` — granos de tono (no cuatro cubos: amenaza/misterio/romance/mundano). Familia = rollo (cotidiano, afecto, deseo, miedo, …).
+- `tropos.txt`, `tipos_historia.txt`, `tipos_personaje.txt`, `tipos_lugar.txt`, `atmosferas.txt` — anclas.
+- `frases.txt` — nubes. Muchas filas por ancla.
+
+## Estrategia de frases (ordenada)
+
+No se guarda el producto cartesiano lugar × atmósfera (serían decenas de miles de filas muertas). Se cubre así:
+
+1. **Nube propia** de cada ancla (lugar, atmósfera, empuje, tropo, personaje, historia) hasta un cupo.
+2. **Cruce** `tipo_lugar + familia` (`oficina+deseo`, `casa+miedo`, …). El motor, si hay lugar y atmósfera/tropo, deriva la familia del empuje y muestrea ese cruce.
+3. Las combinaciones concretas (oficina × erótica laboral, cama × fúnebre) salen en el turno: el sampler junta nubes de las anclas activas.
+
+Para crecer:
+
+- Sumar una fila al TSV de anclas.
+- `python3 scripts/fill_catalog.py --frases` completa nubes y cruces que falten (conserva lo escrito a mano).
+- `python3 scripts/fill_catalog.py` regenera también lugares y atmósferas desde `scripts/catalog_lugares.py` y `scripts/catalog_atmosferas.py`.
+- `python3 scripts/import_catalog.py` vuelca a la SQLite.
 
 ## Fuentes (formulación propia en español; no se copió TVTropes)
 
-- Situaciones dramáticas: Georges Polti, *Les 36 situations dramatiques* (1895, dominio público). Ids y resúmenes nuestros.
-- Arquetipos de personaje: formulación propia a partir de roles narrativos de uso común (mentor, sombra, heraldo, etc.).
-- Tipos de historia y lugares: lista corta propia para un motor agnóstico de género.
-- Frases de las nubes: redacción original para CoreTales.
+- Situaciones dramáticas: Georges Polti, *Les 36 situations dramatiques* (1895, dominio público), más el repertorio predecible de oficina, casa, cuerpo y trámite. Ids y resúmenes nuestros.
+- Arquetipos de personaje: formulación propia a partir de roles narrativos de uso común (mentor, sombra, heraldo, stock).
+- Empujes: granos de tono humano (celos, trámite, acecho, humillación…), no géneros literarios.
+- Frases: redacción original para CoreTales, más bancos por grupo de lugar y familia de empuje.
 
 Wikipedia / stock characters se consultó solo como orientación de cobertura; los textos del catálogo no son citas.

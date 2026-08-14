@@ -7,58 +7,31 @@ import urllib.error
 import urllib.request
 from typing import Any
 
+from adapters.schema import INTENT_SCHEMA, PROBE_SCHEMA
+
 BASE_URL = "http://127.0.0.1:8080/v1"
 TIMEOUT_S = 300
 GAME_SLOT = 0
 PROBE_SLOT = 1
 
-INTENT_SCHEMA: dict[str, Any] = {
-    "type": "object",
-    "properties": {
-        "acto": {"type": "string"},
-        "objetivos": {"type": "array", "items": {"type": "string"}},
-        "deltas": {
-            "type": "object",
-            "properties": {
-                "afinidad": {"type": "number"},
-                "dominancia": {"type": "number"},
-                "estres": {"type": "number"},
-            },
-        },
-        "tags": {"type": "array", "items": {"type": "string"}},
-        "nuevos": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "slug": {"type": "string"},
-                    "nombre": {"type": "string"},
-                    "tipo": {"type": "string"},
-                },
-                "required": ["slug"],
-            },
-        },
-        "lugar": {"type": "string"},
-        "atmosfera": {"type": "string"},
-        "tropo": {"type": "string"},
-    },
-    "required": ["acto"],
-}
-
-PROBE_SCHEMA: dict[str, Any] = {
-    "type": "object",
-    "properties": {
-        "ok": {"type": "boolean"},
-        "narrative": {"type": "string"},
-    },
-    "required": ["ok"],
-}
+__all__ = [
+    "BASE_URL",
+    "GAME_SLOT",
+    "INTENT_SCHEMA",
+    "LlamaCppAdapter",
+    "PROBE_SCHEMA",
+    "PROBE_SLOT",
+]
 
 
 class LlamaCppAdapter:
     def __init__(self, base_url: str = BASE_URL, slot: int = GAME_SLOT) -> None:
         self.base_url = base_url.rstrip("/")
         self.slot = slot
+
+    @property
+    def label(self) -> str:
+        return f"llamacpp/{self.base_url}"
 
     def complete(
         self,

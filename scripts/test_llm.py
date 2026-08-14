@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Comprueba que el servidor LLM responde y que el JSON se puede parsear."""
+"""Comprueba que el LLM responde y que el JSON se puede parsear."""
 
 from __future__ import annotations
 
@@ -9,13 +9,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from adapters.llamacpp import LlamaCppAdapter, PROBE_SCHEMA, PROBE_SLOT
+from adapters.schema import PROBE_SCHEMA
+from adapters.select import adapter_label, make_adapter
 from jsonutil import parse_turn
 
 
 def main() -> int:
-    llm = LlamaCppAdapter(slot=PROBE_SLOT)
-    print(f"POST {llm.base_url}/chat/completions", file=sys.stderr)
+    llm = make_adapter()
+    print(adapter_label(llm), file=sys.stderr)
     raw = llm.complete(
         "You output only JSON objects. No markdown.",
         'Return {"ok": true, "narrative": "hola"} and nothing else.',

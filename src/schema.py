@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS tipos_personaje (
 CREATE TABLE IF NOT EXISTS tipos_lugar (
     id TEXT PRIMARY KEY,
     nombre TEXT NOT NULL,
-    resumen TEXT NOT NULL DEFAULT ''
+    resumen TEXT NOT NULL DEFAULT '',
+    grupo TEXT NOT NULL DEFAULT ''
 );
 CREATE TABLE IF NOT EXISTS atmosferas (
     id TEXT PRIMARY KEY,

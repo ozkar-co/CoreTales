@@ -248,7 +248,7 @@ insomnio	Insomnio	La noche no entrega el descanso.	cuerpo
 resfriado_del_alma	Resfriado del ánimo	Todo está un grado más opaco.	cotidiano
 euforia	Euforia	Sube de más, y se va a notar.	comic
 verguenza_ajena	Vergüenza ajena	Duele el ridículo del otro.	comic
-compasión	Compasión	Se padece un poco con el otro.	afecto
+compasion	Compasión	Se padece un poco con el otro.	afecto
 desprecio	Desprecio	Se mira de arriba, aunque se sonría.	poder
 curiosidad	Curiosidad	Se quiere ver detrás de la puerta.	verdad
 aburrimiento_erotico	Aburrimiento erótico	El deseo está rutinizado.	deseo

@@ -36,6 +36,11 @@ def _write_tsv(path: Path, header: list[str], rows: list[tuple]) -> None:
 
 def import_catalog(conn: sqlite3.Connection, catalog_dir: Path = CATALOG_DIR) -> None:
     conn.executescript(SCHEMA)
+    cols = [r[1] for r in conn.execute("PRAGMA table_info(tipos_lugar)")]
+    if "grupo" not in cols:
+        conn.execute(
+            "ALTER TABLE tipos_lugar ADD COLUMN grupo TEXT NOT NULL DEFAULT ''"
+        )
     for table in ANCHOR_TABLES:
         path = catalog_dir / ANCHOR_FILE[table]
         if not path.exists():
@@ -77,7 +82,7 @@ def export_catalog(conn: sqlite3.Connection, catalog_dir: Path = CATALOG_DIR) ->
         "tropos": ["id", "nombre", "resumen", "empuje"],
         "tipos_historia": ["id", "nombre", "resumen", "empuje"],
         "tipos_personaje": ["id", "nombre", "resumen"],
-        "tipos_lugar": ["id", "nombre", "resumen"],
+        "tipos_lugar": ["id", "nombre", "resumen", "grupo"],
         "atmosferas": ["id", "nombre", "resumen", "empuje"],
     }
     for table, header in headers.items():

@@ -40,7 +40,7 @@ jugador → [1. traducir] → JSON (intención, entidades, deltas)
 
 3. **Narración (output).** Prompt rígido: quién / dónde / cuándo, núcleo, máscara, tags relevantes, resumen, beat. El LLM viste. No recibe la novela ni permiso para reescribir números.
 
-El adapter sigue siendo `complete(system, user) -> str`. Cambian los prompts (traducir vs narrar), no el puerto. Primer backend: HTTP compatible OpenAI (llama.cpp). URL en el adapter. `.env` solo para secretos.
+El adapter sigue siendo `complete(system, user) -> str`. Cambian los prompts (traducir vs narrar), no el puerto. Backends: llama.cpp (HTTP local) u OpenAI. `.env` solo para secretos (`OPENAI_API_KEY`). `CORE_TALES_LLM=openai|llamacpp` fuerza el vendor; si no, OpenAI cuando hay clave.
 
 Prefijo de reglas cacheable en llama.cpp (slot de partida). `test_llm` usa otro slot.
 
