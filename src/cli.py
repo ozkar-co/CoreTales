@@ -6,11 +6,16 @@ import sys
 
 from adapters.llamacpp import LlamaCppAdapter
 from engine import Engine
+from store import DEFAULT_SAVE
 
 
 def main() -> None:
-    engine = Engine(LlamaCppAdapter())
-    print("CoreTales. Escribe lo que haces. Ctrl-D para salir.", file=sys.stderr)
+    engine = Engine(LlamaCppAdapter(), save_path=DEFAULT_SAVE)
+    print(
+        f"CoreTales. Partida: {DEFAULT_SAVE.name}. "
+        "Escribe lo que haces. Ctrl-D para salir.",
+        file=sys.stderr,
+    )
     while True:
         try:
             line = input("> ")

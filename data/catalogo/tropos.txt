@@ -1,0 +1,138 @@
+id	nombre	resumen	empuje
+suplica	Súplica	Alguien pide clemencia, ayuda o perdón a quien puede dárselos.	sumision
+salvamento	Salvamento	Una persona o cosa es rescatada de un peligro inminente.	peligro_fisico
+venganza	Venganza	Se cobra una ofensa, con o sin justicia.	venganza
+persecucion	Persecución	Alguien huye; otro lo persigue.	persecucion
+desastre	Desastre	Una catástrofe cae sobre el grupo o el lugar.	desastre
+enigma	Enigma	Hay que resolver un secreto, un crimen o una mentira.	enigma
+obtencion	Obtención	Se busca un objeto, un puesto o un favor.	ambicion
+rivalidad	Rivalidad	Dos fuerzas se disputan lo mismo.	rivalidad
+amor_prohibido	Amor prohibido	El deseo choca con una norma, un tercero o el miedo.	tabu
+locura	Locura	La percepción se tuerce; el mundo interior invade el exterior.	amenaza_psicologica
+sacrificio	Sacrificio	Alguien entrega algo irrecuperable por otro o por una causa.	sacrificio
+ambicion	Ambición	El hambre de poder o de estatus mueve la escena.	ambicion
+celos	Celos	La sospecha de pérdida de afecto distorsiona cada gesto.	celos
+error	Error de juicio	Se actúa sobre una creencia falsa.	malentendido
+remordimiento	Remordimiento	El pasado vuelve como culpa.	remordimiento
+recuperar	Recuperar lo perdido	Se intenta volver a un estado anterior.	nostalgia
+perder	Pérdida	Alguien o algo se va y no vuelve igual.	perdida
+adulterio	Infidelidad	Un vínculo se rompe o se tensa por un tercero.	transgresion
+revuelta	Revuelta	Se desafía una autoridad.	revuelta
+empresa	Empresa temeraria	Se acomete algo desproporcionado.	temeridad
+rapto	Rapto	Alguien es llevado contra su voluntad.	peligro_fisico
+odio	Odio íntimo	El rencor vive cerca, en casa o en la oficina.	odio
+necesidad	Necesidad cruel	Hay que elegir entre dos males.	necesidad_cruel
+conflicto	Conflicto de lealtades	Dos deberes no caben a la vez.	dilema
+descubrimiento	Descubrimiento	Se revela un hecho que cambia el tablero.	descubrimiento
+humillacion	Humillación	El estatus se rompe en público o en privado.	humillacion
+seduccion	Seducción	Uno atrae; el otro resiste o cede.	seduccion
+chantaje	Chantaje	Un secreto se usa como palanca.	chantaje
+traicion	Traición	Se rompe una confianza dada.	traicion
+alianza	Alianza frágil	Se colabora con quien no se confía del todo.	complicidad
+vigilancia	Vigilancia	Alguien observa sin ser del todo visto.	vigilancia
+cotidiano	Roce cotidiano	Nada “pasa” y aun así todo pesa.	rutina
+tentacion	Tentación	Se ofrece algo que no se debería tomar.	tentacion
+confesion	Confesión	Se dice lo que se callaba.	confesion
+duelo	Duelo de voluntades	Dos caracteres empujan en sentido contrario.	rivalidad
+huida	Huida	Se abandona el lugar o el rol.	huida
+evaluacion	Evaluación	Se mide a alguien delante de quien manda.	status
+ascenso	Ascenso	Hay un puesto arriba y alguien lo quiere.	ambicion
+despido	Despido	Se pierde el lugar en el organigrama.	peligro_economico
+reunion	Reunión	Varias personas, una mesa, poco aire.	jerarquia
+chisme_oficina	Chisme de oficina	La noticia recorre los cubículos antes que el mail.	chisme
+credito_robado	Crédito robado	El trabajo de uno aparece con el nombre de otro.	credito
+hora_extra	Hora extra	El reloj ya no es de uno.	horario
+acoso_laboral	Acoso laboral	La insistencia no pide permiso y usa el cargo.	acoso
+favor_laboral	Favor laboral	Hoy te saco; mañana te cobro.	favor
+silencio_mesa	Silencio de mesa	Se come y no se habla de lo que importa.	silencio
+visita	Visita inesperada	Alguien entra al espacio que no era suyo.	umbral
+herencia	Herencia	Los muertos siguen repartiendo.	deuda_de_sangre
+enfermedad_casa	Enfermedad en casa	El cuerpo de uno manda sobre todos.	enfermedad
+vecino	Vecino	Tan cerca que oye, tan lejos que no debe.	vecindad
+mudanza	Mudanza	Se desarma un mundo para armar otro.	desplazamiento
+deudas	Deudas	Los números aprietan más que las personas.	deuda
+coqueteo	Coqueteo	Se tira el anzuelo y se mide la respuesta.	coqueteo
+rechazo	Rechazo	El deseo de uno no encuentra al otro.	rechazo_erotico
+reconquista	Reconquista	Se intenta volver a ser querido.	anhelo
+triangulo	Triángulo	Tres no caben donde había sitio para dos.	triangulo
+mirada	Mirada	Los ojos llegan antes que la mano.	mirada_cargada
+roce	Roce	Un contacto mínimo carga más que un discurso.	roce
+aftercare	Aftercare	Después del cuerpo, hay que volver a ser gente.	cuidado
+distancia	Distancia	El espacio entre dos cuerpos es la frase.	distancia_corporal
+rumor	Rumor	Nadie lo vio; todos lo comentan.	rumor_social
+exclusion	Exclusión	El círculo se cierra y alguien queda afuera.	exclusion
+invitacion	Invitación	Entrar es aceptar un precio.	etiqueta
+fiesta	Fiesta	Alegría obligatoria, testigos de más.	fiesta
+cola	Cola	El orden de llegada humilla o protege.	cola
+tramite	Trámite	Hay que pasar por el procedimiento para llegar a lo vivo.	tramite
+archivo_perdido	Archivo perdido	La verdad debería estar en un papel.	archivo
+espera	Espera	El tiempo no avanza; se lo siente.	espera
+retraso	Retraso	Se llega tarde a lo que importaba.	retraso
+deadline	Plazo	Hay una fecha y se siente en el cuello.	plazo
+insomnio	Insomnio	La noche no entrega el descanso.	insomnio
+resaca	Resaca	La noche anterior no se fue.	resaca
+hambre	Hambre	El cuerpo pide y no entiende de relatos.	hambre
+cansancio	Cansancio	Ya no hay margen.	cansancio
+funeral	Funeral	El mundo pide formas para la pérdida.	luto
+velorio	Velorio	El cuerpo está y ya no está.	duelo_mortal
+nacimiento	Nacimiento	Alguien entra al mundo y todo se reordena.	ternura_paternal
+disculpa	Disculpa	Se pide que suelten una deuda.	perdon
+perdon	Perdón	Se suelta, o se finge.	perdon
+interrogatorio	Interrogatorio	Preguntas que no son conversación.	peligro_legal
+denuncia	Denuncia	Se pone por escrito lo que se callaba.	justicia
+juicio	Juicio	Hay testigos, forma y condena posible.	condena
+hurto	Hurto	Algo deja de estar donde debía.	botin
+extravio	Extravío	Se perdió y no se sabe si lo tomaron.	perdida
+hallazgo	Hallazgo	Aparece algo que no se buscaba así.	descubrimiento
+mentira_piadosa	Mentira piadosa	Se miente para no romper.	mentira
+omision	Omisión	Lo grave es lo que no se dijo.	omision
+secreto_a_voces	Secreto a voces	Todos lo saben y se finge que no.	secreto_a_voces
+cuidado_enfermo	Cuidado del enfermo	El cuerpo del otro está en tus manos.	cuidado_ajeno
+despedida	Despedida	El último rato juntos, o el que finge no serlo.	despedida
+reencuentro	Reencuentro	Volver a verse después de un corte.	reencuentro
+negocio	Negocio	Se habla de números para no hablar de otra cosa.	deuda
+soborno	Soborno	La regla se vende en efectivo.	corrupcion
+celada	Celada	La escena estaba armada en contra.	farsa
+fuga	Fuga	Salir ahora, como sea.	huida
+juramento	Juramento	Una promesa ata más que el gusto.	juramento
+exposicion	Exposición pública	Te ven de más; no hay dónde esconderse.	exposicion
+mensaje	Mensaje a destiempo	Un texto, una nota, una llamada que no debía llegar ahora.	mensaje
+puerta_entreabierta	Puerta entreabierta	El umbral invita y compromete.	puerta_entreabierta
+testigo	Testigo	Alguien vio y eso cambia el precio.	testigo
+objeto	Objeto cargado	Una cosa pequeña pesa más que el diálogo.	objeto_cargado
+pretexto	Pretexto	Se entra por una excusa.	pretexto
+envidia	Envidia	El bien del otro se siente como agravio.	envidia
+comparacion	Comparación	Hay un marcador, aunque no se vea.	competencia
+proteccion	Protección excesiva	Ponerse entre el otro y el mundo, de más.	proteccion
+abandono	Abandono	Se iban a quedar y no quedaron.	abandono
+jefe_presente	Jefe en la habitación	La jerarquía entra y el aire cambia.	autoridad
+doble_vida	Doble vida	Hay otro horario, otro nombre, otra cama.	doble_vida
+reconciliacion	Reconciliación	Se vuelve a un vínculo que se había roto.	reconciliacion
+ruptura	Ruptura	Se nombra el final, o se actúa como si ya estuviera.	ruptura
+espionaje	Espionaje menor	Revisar un cajón, un teléfono, una mirada.	vigilancia
+chantaje_emocional	Chantaje emocional	El afecto se usa como palanca.	chantaje
+indiferencia	Indiferencia	No duele: eso es lo que duele.	indiferencia_afectiva
+cuidado	Cuidado	Atender el cuerpo o el ánimo de otro.	cuidado
+soledad	Soledad	Nadie entra, o entra y no cuenta.	soledad
+orgullo	Orgullo herido	Duele más la imagen que el hecho.	orgullo_herido
+confesion_falsa	Confesión falsa	Se dice una culpa para tapar otra.	farsa
+alivio	Alivio	Por un rato deja de apretar.	alivio
+fastidio	Fastidio	No es odio: es roce acumulado.	fastidio
+piedad	Piedad	Se mira al caído sin subirse encima.	piedad
+crueldad	Crueldad	Se disfruta o se usa el daño.	crueldad
+curiosidad	Curiosidad	Se quiere ver detrás de la puerta.	curiosidad
+quedarse	Quedarse	No irse es la decisión.	quedarse
+deseo_huir	Deseo de huir	El cuerpo ya está en la puerta.	deseo_de_huir
+calma_falsa	Calma falsa	Está quieto de más.	calma_falsa
+amenaza_velada	Amenaza velada	La frase educada esconde el golpe.	amenaza_velada
+favor	Favor	Lo que se da hoy se cobra mañana.	favor
+deuda_moral	Deuda moral	Se debe un bien o un mal, y se nota.	gratitud
+luto_en_vida	Luto en vida	Se llora a quien todavía respira.	duelo_afectivo
+exilio	Exilio	No se puede volver al sitio propio.	exilio
+caida	Caída	Del puesto, de la gracia, de la imagen.	caida
+chapuza	Chapuza	Se resuelve mal, y se sigue.	chapuza
+profesionalidad	Profesionalidad	El rol tapa el temblor.	profesionalidad
+fidelidad	Fidelidad	Se sostiene un pacto cuando sería más fácil no.	fidelidad
+obsesion	Obsesión	Un objeto, una persona, una idea no suelta.	obsesion
+esperanza	Esperanza	Todavía podría salir bien.	esperanza
+desesperacion	Desesperación	Ya no hay plan B.	desesperacion

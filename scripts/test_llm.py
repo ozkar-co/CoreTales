@@ -9,7 +9,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from adapters.llamacpp import LlamaCppAdapter, PROBE_SLOT
+from adapters.llamacpp import LlamaCppAdapter, PROBE_SCHEMA, PROBE_SLOT
 from jsonutil import parse_turn
 
 
@@ -19,6 +19,7 @@ def main() -> int:
     raw = llm.complete(
         "You output only JSON objects. No markdown.",
         'Return {"ok": true, "narrative": "hola"} and nothing else.',
+        json_schema=PROBE_SCHEMA,
     )
     print(raw)
     try:

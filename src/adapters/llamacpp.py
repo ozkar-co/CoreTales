@@ -5,19 +5,53 @@ from __future__ import annotations
 import json
 import urllib.error
 import urllib.request
+from typing import Any
 
 BASE_URL = "http://127.0.0.1:8080/v1"
 TIMEOUT_S = 300
 GAME_SLOT = 0
 PROBE_SLOT = 1
 
-TURN_SCHEMA = {
+INTENT_SCHEMA: dict[str, Any] = {
     "type": "object",
     "properties": {
-        "ops": {"type": "array", "items": {"type": "object"}},
+        "acto": {"type": "string"},
+        "objetivos": {"type": "array", "items": {"type": "string"}},
+        "deltas": {
+            "type": "object",
+            "properties": {
+                "afinidad": {"type": "number"},
+                "dominancia": {"type": "number"},
+                "estres": {"type": "number"},
+            },
+        },
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "nuevos": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "slug": {"type": "string"},
+                    "nombre": {"type": "string"},
+                    "tipo": {"type": "string"},
+                },
+                "required": ["slug"],
+            },
+        },
+        "lugar": {"type": "string"},
+        "atmosfera": {"type": "string"},
+        "tropo": {"type": "string"},
+    },
+    "required": ["acto"],
+}
+
+PROBE_SCHEMA: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "ok": {"type": "boolean"},
         "narrative": {"type": "string"},
     },
-    "required": ["ops", "narrative"],
+    "required": ["ok"],
 }
 
 
@@ -26,23 +60,31 @@ class LlamaCppAdapter:
         self.base_url = base_url.rstrip("/")
         self.slot = slot
 
-    def complete(self, system: str, user: str) -> str:
-        body = {
+    def complete(
+        self,
+        system: str,
+        user: str,
+        json_schema: dict[str, Any] | None = None,
+        temperature: float = 0.5,
+        max_tokens: int = 512,
+    ) -> str:
+        body: dict[str, Any] = {
             "model": "local",
             "messages": [
                 {"role": "system", "content": system},
                 {"role": "user", "content": user},
             ],
-            "temperature": 0.5,
-            "max_tokens": 512,
+            "temperature": temperature,
+            "max_tokens": max_tokens,
             "cache_prompt": True,
             "id_slot": self.slot,
             "stop": ["<|im_end|>", "<|im_start|>"],
-            "response_format": {
-                "type": "json_object",
-                "schema": TURN_SCHEMA,
-            },
         }
+        if json_schema is not None:
+            body["response_format"] = {
+                "type": "json_object",
+                "schema": json_schema,
+            }
         data = json.dumps(body).encode("utf-8")
         req = urllib.request.Request(
             f"{self.base_url}/chat/completions",

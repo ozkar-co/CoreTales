@@ -1,0 +1,52 @@
+id	nombre	resumen	empuje
+romantica	Romántica	Cercanía, calor, riesgo de verse.	romance
+fria	Fría	Distancia, cortesía, metal.	cortesia
+aburrida	Aburrida	Nada nuevo; el reloj manda.	aburrimiento
+monotona	Monótona	Repetición hasta volverse ruido.	rutina
+hostil	Hostil	El espacio no te quiere.	amenaza
+misteriosa	Misteriosa	Falta una pieza a la vista.	misterio
+festiva	Festiva	Gente de más, luces, exceso.	exceso_festivo
+opresiva	Opresiva	Techo bajo, pocas salidas.	claustrofobia
+erotica	Erótica	Cuerpo en primer plano, sin disculpa.	erotismo
+tensa	Tensa	Algo va a decirse y aún no.	inquietud
+intima	Íntima	Pocas personas, poca ropa de rol.	hogar_emocional
+nostalgica	Nostálgica	El pasado huele más fuerte que el presente.	nostalgia
+melancolica	Melancólica	Todo está un grado más opaco.	carencia
+urgente	Urgente	Si no es ahora, no es.	urgencia
+letargica	Letárgica	Los gestos llegan tarde.	cansancio
+violenta	Violenta	El daño ya no es metáfora.	violencia
+paranoica	Paranoica	Cualquiera podría ser el peligro.	paranoia
+sagrada	Sagrada	Hay algo que no se toca.	lo_sagrado
+profana	Profana	Nada vale; se puede todo.	profano
+grotesca	Grotesca	El exceso da asco y risa.	grotesco
+ironica	Irónica	Se dice lo contrario para oír lo cierto.	ironia
+absurda	Absurda	La lógica del sitio no cierra.	absurdo
+solemne	Solemne	La forma pesa más que el fondo.	rito
+caotica	Caótica	Nadie manda del todo.	desastre
+asfixiante	Asfixiante	Falta aire, o lo parece.	hambre_de_aire
+lujuriosa	Lujuriosa	El hambre no pide relato.	lujuria
+pudorosa	Pudorosa	Se tapa lo que se quiere mostrar.	pudor
+humillante	Humillante	El estatus se puede romper aquí.	humillacion
+jerarquica	Jerárquica	Se nota quién se sienta dónde.	jerarquia
+clandestina	Clandestina	Esto no debería estar pasando.	secreto
+funebre	Fúnebre	La pérdida pide formas.	luto
+esperanzada	Esperanzada	Todavía podría salir bien.	esperanza
+desesperada	Desesperada	Ya no hay plan B.	desesperacion
+celosa	Celosa	Cada gesto se lee como amenaza al vínculo.	celos
+indiferente	Indiferente	Nadie se da por aludido.	indiferencia_afectiva
+vigilada	Vigilada	Te miran, o lo parece.	vigilancia
+sucia	Sucia	Lo que debería estar limpio no lo está.	suciedad
+aséptica	Aséptica	Demasiado limpio; no hay rastro humano.	aseo
+calida	Cálida	El aire perdona.	ternura
+cruel	Cruel	El sitio disfruta el daño.	crueldad
+comica	Cómica	El roce se vuelve ridículo.	comedia
+sombría	Sombría	La luz no alcanza a propósito.	penumbra
+deslumbrante	Deslumbrante	Todo se ve; nada se esconde.	exceso_de_luz
+enferma	Enferma	El cuerpo manda sobre la agenda.	enfermedad
+ebria	Ebria	La percepción ya no es de fiar.	intoxicacion
+soledad	Solitaria	Nadie entra, o entra y no cuenta.	soledad
+hogarena	Hogareña	Se podría descansar, si se dejara.	domestico
+laboral	Laboral	El trabajo organiza hasta el silencio.	laboral
+amenazante	Amenazante	La frase educada esconde el golpe.	amenaza_velada
+confesional	Confesional	Aquí se dice lo que se callaba.	confesion
+obsesiva	Obsesiva	Una idea no suelta el cuarto.	obsesion

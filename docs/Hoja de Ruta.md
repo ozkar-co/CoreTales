@@ -4,15 +4,16 @@ El enfoque (por qué el LLM no simula el mundo) está en [Enfoque y decisiones.m
 
 El prototipo de una sola llamada (ops + narrativa juntas) sirvió para ver adulación, deriva y ops rotas. Las fases de abajo **no lo extienden**: montan el ciclo de dos etapas. Cada fase se puede jugar sola; la siguiente no la reescribe.
 
-## Fase 1 — Traducir y vestir
+## Fase 1 — Traducir, vestir y disco
 
-**Objetivo:** dos llamadas cortas. El 3B clasifica; el motor aplica un estado mínimo; el 3B narra lo ya resuelto. Sin SQLite todavía.
+**Objetivo:** dos llamadas cortas. El 3B clasifica; el motor aplica un estado mínimo en SQLite; el 3B ensambla prosa a partir de fragmentos ya muestreados.
 
-- Etapa 1: JSON estricto (intención, entidades, deltas, tags). Sin `narrative`. Schema en el adapter.
-- Motor: escena (`pc`, `location`, `time`) + núcleo 0–1 (afinidad, dominancia, estrés) + tags. Topes. El modelo no escribe el núcleo a pelo.
-- Etapa 2: prompt rígido → prosa. Sin ops.
+- Etapa 1: JSON estricto (acto, objetivos, deltas, tags, nuevos). Sin `narrative`. Schema en el adapter.
+- Motor: escena (`pc`, `location`, `atmosfera`, `tropo`, `time`) + núcleo 0–1 (afinidad, dominancia, estrés) + tags. Topes. El modelo no escribe el núcleo a pelo.
+- Catálogo: anclas + nubes de frases en la misma SQLite. Los `.txt` de `data/catalogo/` son import/export.
+- Una partida = `saves/<nombre>.sqlite`. Commit al cerrar el turno con éxito.
+- Etapa 2: prompt rígido + fragmentos muestreados → prosa. Sin ops. El 3B une; no inventa sensorial.
 - CLI: texto libre in, prosa out. Debug vuelca las dos llamadas.
-- Tope de ops/tags por turno para que un 3B no spawnee `oficina.1`…`oficina.28`.
 
 **Listo cuando:** un input produce JSON de intención parseable, el motor mueve números, y la prosa no contradice quién es el PC. Si la etapa 1 no clasifica, no hay producto.
 
@@ -26,21 +27,20 @@ El prototipo de una sola llamada (ops + narrativa juntas) sirvió para ver adula
 
 **Listo cuando:** subir misterio cambia el vestuario del NPC y no borra la afinidad.
 
-## Fase 3 — Partida en disco
+## Fase 3 — Resumen enrollable
 
-**Objetivo:** una SQLite = una partida. Resumen enrollable. Reanudar.
+**Objetivo:** memoria corta canónica. Reanudar ya funciona (la SQLite es de fase 1).
 
-- Commit al cerrar el turno con éxito. Sin botón de guardar.
+- Rolling state: un párrafo canónico cada N turnos (o al pasar un beat).
 - Prosa en log aparte; el modelo no la usa como memoria.
-- Rolling state: un párrafo canónico cada N turnos.
 
-**Listo cuando:** se cierra el proceso, se abre el archivo, núcleo / tags / escena / resumen siguen ahí.
+**Listo cuando:** se cierra el proceso, se abre el archivo, y el resumen sigue siendo un párrafo, no el chat entero.
 
 ## Fase 4 — Átomos offline
 
-**Objetivo:** riqueza sin creatividad en vivo del 3B.
+**Objetivo:** nubes densas sin creatividad en vivo del 3B.
 
-- Generar (otro modelo, otro momento) perfiles, reacciones, sensorial.
+- Generar (otro modelo, otro momento) perfiles, reacciones, sensorial a cientos de frases por ancla.
 - El runtime solo selecciona e inyecta en la etapa 2.
 - Paquete de aventura = seeder, no otro motor.
 
@@ -61,8 +61,8 @@ Más beats, más adapters, lo que pida el uso real. Sin criterio de cierre.
 ## Dependencias
 
 ```
-1 traducir + vestir  →  2 máscara y vectores
-                              →  3 disco + resumen
-                                    →  4 átomos offline
-                                          →  5 alfa
+1 traducir + vestir + disco  →  2 máscara y vectores
+                                    →  3 resumen enrollable
+                                          →  4 átomos offline
+                                                →  5 alfa
 ```

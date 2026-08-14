@@ -1,0 +1,35 @@
+id	nombre	resumen	empuje
+viaje	Viaje	Salir de lo conocido y volver cambiado.	desplazamiento
+venganza	Venganza	Cobrar una deuda moral o de sangre.	venganza
+misterio	Misterio	Hay un secreto que el mundo no quiere abrir.	misterio
+romance	Romance	El vínculo afectivo es el motor.	romance
+formacion	Formación	Alguien aprende un precio.	inocencia_perdida
+tragedia	Tragedia	El fallo es irreversible.	tragedia
+comedia	Comedia	El roce social se vuelve absurdo.	comedia
+golpe	Golpe	Un plan para tomar lo que está vigilado.	temeridad
+supervivencia	Supervivencia	Aguantar el entorno hostil.	supervivencia
+intriga	Intriga	Poder, rumores, pasillos.	jerarquia
+redencion	Redención	Reparar lo que uno rompió.	redencion
+sacrificio	Sacrificio	Entregar de más.	sacrificio
+descubrimiento	Descubrimiento	El mundo era otro.	asombro
+guerra	Guerra	Bandos, lealtades, daño.	guerra
+cotidianidad	Cotidianidad	La vida ordinaria, hasta que no.	mundano
+erotismo	Erotismo	El deseo es el motor, no el adorno.	erotismo
+policial	Policial	Hay un hecho y hay que nombrarlo.	enigma
+horror	Horror	Lo que se ve no debería poder verse.	horror
+melodrama	Melodrama	El sentimiento se dice en voz demasiado alta.	romance
+farsa	Farsa	Nadie cree del todo y aun así representan.	farsa_comica
+noir	Negro	Todos tienen sucio; la luz es poca.	decadencia
+bildungsroman	Aprendizaje	Llegar a adulto cuesta un pellejo.	atraso_vital
+domesticidad	Domesticidad	La casa es el tablero entero.	domestico
+oficina_epica	Épica de oficina	El cubículo es el campo de batalla.	laboral
+venganza_fria	Venganza fría	Se cobra sin alzar la voz.	rencor
+huida	Huida	Irse es el arco.	huida
+regreso	Regreso	Volver al sitio que ya no es.	nostalgia
+juicio	Juicio	La comunidad decide quién queda adentro.	justicia
+pacto	Pacto	Una promesa ordena el resto.	juramento
+caida	Caída	De la gracia al suelo.	caida
+exilio	Exilio	No hay vuelta al sitio propio.	exilio
+obsesion	Obsesión	Un objeto o una persona no suelta.	obsesion
+celo	Celo	El miedo a perder el afecto es el motor.	celos
+doble	Doble vida	Dos horarios, dos nombres, un cuerpo.	doble_vida

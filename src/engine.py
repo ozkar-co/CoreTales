@@ -1,21 +1,20 @@
-"""Núcleo fase 1: una llamada por turno, escena en memoria, reintento de JSON."""
+"""Ciclo de dos etapas: traducir → aplicar → muestrear → ensamblar."""
 
 from __future__ import annotations
 
 import json
 import os
 import sys
+from pathlib import Path
 from typing import Any
 
 from adapter import LlmAdapter
-from jsonutil import parse_turn
-from prompt import SYSTEM_PROMPT
-from store import Store
+from adapters.llamacpp import INTENT_SCHEMA
+from jsonutil import parse_intent
+from prompt import NARRATE_SYSTEM, RETRY_HINT, TRANSLATE_SYSTEM
+from store import DEFAULT_SAVE, Store
 
-RETRY_HINT = (
-    "Un solo objeto JSON con ops (nombres reales, no placeholders) "
-    "y narrative en segunda persona sobre la acción del jugador."
-)
+_STUBS = ("pc.nombre", "npc.nombre", "loc.lugar", "<id>")
 
 
 def _debug() -> bool:
@@ -28,77 +27,105 @@ def _log_debug(title: str, body: str) -> None:
         print(body, file=sys.stderr)
 
 
-_STUBS = (
-    "texto que ve el jugador",
-    "texto que ve el jugador.",
-)
-
-
 def _looks_stub(data: dict[str, Any]) -> bool:
-    narrative = data.get("narrative")
-    if not isinstance(narrative, str) or not narrative.strip():
+    acto = data.get("acto")
+    if not isinstance(acto, str) or not acto.strip():
         return True
-    n = narrative.strip().lower()
-    if n in _STUBS or n.startswith("texto que ve"):
-        return True
-    blob = json.dumps(data, ensure_ascii=False)
-    if "pc.nombre" in blob or "loc.lugar" in blob or "npc.nombre" in blob:
-        return True
-    return False
+    blob = json.dumps(data, ensure_ascii=False).lower()
+    return any(s in blob for s in _STUBS)
 
 
-def _user_packet(store: Store, player: str) -> str:
-    scene = json.dumps(store.scene_packet(), ensure_ascii=False, indent=2)
-    return (
-        f"Acción del jugador:\n{player}\n\n"
-        f"Estado actual (si pc/location son null, créalos según esa acción):\n{scene}\n\n"
-        "JSON de este turno: ops + narrative. Nada de plantillas."
-    )
+def _unwrap_prose(raw: str) -> str:
+    text = (raw or "").strip()
+    if text.startswith("```"):
+        text = text.strip("`")
+        if text.lower().startswith("json"):
+            text = text[4:]
+        text = text.strip()
+    if text.startswith("{"):
+        try:
+            data = json.loads(text)
+        except json.JSONDecodeError:
+            data = None
+        if isinstance(data, dict):
+            for key in ("narrative", "prosa", "texto"):
+                val = data.get(key)
+                if isinstance(val, str) and val.strip():
+                    return val.strip()
+    for prefix in ("Narrative:", "Prosa:", "Narrativa:"):
+        if text.lower().startswith(prefix.lower()):
+            text = text[len(prefix) :].strip()
+    return text
 
 
 class Engine:
-    def __init__(self, llm: LlmAdapter, store: Store | None = None) -> None:
+    def __init__(
+        self,
+        llm: LlmAdapter,
+        store: Store | None = None,
+        save_path: Path | str | None = None,
+    ) -> None:
         self.llm = llm
-        self.store = store or Store()
+        self.store = store or Store(save_path or DEFAULT_SAVE)
 
     def turn(self, player: str) -> str:
-        backup = self.store.snapshot()
-        user = _user_packet(self.store, player)
+        user = self.store.translate_packet(player)
+        intent = self._complete_intent(user)
+        self.store.begin()
         try:
-            data = self._complete_json(user)
-            ops = data.get("ops") or []
-            narrative = data.get("narrative")
-            if not isinstance(narrative, str):
-                narrative = ""
-            self.store.apply_ops(ops if isinstance(ops, list) else [])
-            if narrative:
-                self.store.prose_log.append(narrative)
-            return narrative
+            self.store.apply_intent(intent)
+            pack = self.store.narration_packet(player, intent)
+            prose = self._complete_prose(pack)
+            if not prose:
+                raise RuntimeError("prosa vacía")
+            self.store.append_prose(prose)
+            self.store.commit()
+            return prose
         except Exception:
-            self.store.restore(backup)
+            self.store.rollback()
             raise
 
-    def _complete_json(self, user: str) -> dict[str, Any]:
-        raw = self.llm.complete(SYSTEM_PROMPT, user)
-        _log_debug("llm", raw)
+    def _complete_intent(self, user: str) -> dict[str, Any]:
+        raw = self.llm.complete(
+            TRANSLATE_SYSTEM,
+            user,
+            json_schema=INTENT_SCHEMA,
+            temperature=0.3,
+            max_tokens=256,
+        )
+        _log_debug("etapa1", raw)
         data = None
         try:
-            data = parse_turn(raw)
+            data = parse_intent(raw)
             if _looks_stub(data):
                 data = None
         except (ValueError, json.JSONDecodeError):
             data = None
         if data is None:
             raw = self.llm.complete(
-                SYSTEM_PROMPT,
+                TRANSLATE_SYSTEM,
                 user + "\n\n" + RETRY_HINT,
+                json_schema=INTENT_SCHEMA,
+                temperature=0.2,
+                max_tokens=256,
             )
-            _log_debug("llm-retry", raw)
+            _log_debug("etapa1-reintento", raw)
             try:
-                data = parse_turn(raw)
+                data = parse_intent(raw)
             except (ValueError, json.JSONDecodeError) as e:
                 raise RuntimeError(f"JSON inválido tras reintento: {e}") from e
             if _looks_stub(data):
-                raise RuntimeError("el modelo devolvió una plantilla, no una escena")
-        _log_debug("json", json.dumps(data, ensure_ascii=False, indent=2))
+                raise RuntimeError("el modelo devolvió una plantilla, no una intención")
+        _log_debug("intencion", json.dumps(data, ensure_ascii=False, indent=2))
         return data
+
+    def _complete_prose(self, user: str) -> str:
+        raw = self.llm.complete(
+            NARRATE_SYSTEM,
+            user,
+            json_schema=None,
+            temperature=0.7,
+            max_tokens=400,
+        )
+        _log_debug("etapa2", raw)
+        return _unwrap_prose(raw)

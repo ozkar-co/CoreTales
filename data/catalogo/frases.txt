@@ -1,0 +1,89 @@
+ancla_tipo	ancla_id	clase	texto
+tipo_lugar	oficina	sensorial	El fluorescente zumba un tono más alto de lo que debería.
+tipo_lugar	oficina	sensorial	Huele a tóner, café frío y alfombra de hace años.
+tipo_lugar	oficina	sensorial	El teclado de alguien, lejos, no para.
+tipo_lugar	oficina	sensorial	La luz no tiene sombra: todo queda plano.
+tipo_lugar	oficina	ambiente	Los cubículos recortan el aire en cajas iguales.
+tipo_lugar	oficina	ambiente	El reloj de pared adelanta medio minuto y nadie lo corrige.
+tipo_lugar	oficina	ambiente	Hay un silencio de gente que finge trabajar.
+tipo_lugar	oficina	fragmento	Pasillo estrecho entre escritorios; cables por el suelo.
+tipo_lugar	oficina	fragmento	La impresora parpadea un error que nadie lee.
+tipo_lugar	oficina	fragmento	Una taza con el logo de la empresa, vacía.
+tipo_lugar	despacho	sensorial	La puerta cierra con un clic que corta el pasillo.
+tipo_lugar	despacho	sensorial	Huele a madera barnizada y a perfume barato de reunión.
+tipo_lugar	despacho	ambiente	La mesa es demasiado ancha para lo que se va a decir.
+tipo_lugar	despacho	ambiente	El ventanal da a un patio interior que nadie usa.
+tipo_lugar	despacho	fragmento	Dos sillas; una más baja.
+tipo_lugar	despacho	fragmento	Un expediente cerrado, a propósito, en el borde.
+tipo_lugar	taberna	sensorial	El vaso deja un círculo húmedo en la madera.
+tipo_lugar	taberna	sensorial	Huele a cerveza tibia y a fritura.
+tipo_lugar	taberna	ambiente	Las voces se pisan; nadie oye del todo.
+tipo_lugar	taberna	fragmento	Una silla coja junto a la barra.
+tipo_lugar	calle	sensorial	El asfalto todavía suelta calor.
+tipo_lugar	calle	ambiente	Gente que no se detiene.
+tipo_lugar	casa	sensorial	El olor de siempre, un grado más fuerte.
+tipo_lugar	casa	ambiente	Los objetos están donde los dejaste, o no.
+atmosfera	romantica	sensorial	La distancia entre dos cuerpos se nota como un tercer personaje.
+atmosfera	romantica	sensorial	Un roce de tela; nada más, y basta.
+atmosfera	romantica	ambiente	El aire se queda corto entre una frase y la siguiente.
+atmosfera	romantica	ambiente	Nadie mira a los demás; se miran ellos.
+atmosfera	romantica	reaccion	Se le nota el pulso en la garganta cuando traga.
+atmosfera	romantica	reaccion	Sonríe de lado, como si no quisiera que se viera.
+atmosfera	romantica	fragmento	Una mano que no termina de posarse.
+atmosfera	fria	sensorial	El aire acondicionado pega en la nuca.
+atmosfera	fria	ambiente	Las frases caben en un correo y aun así se dicen en voz alta.
+atmosfera	fria	reaccion	Asiente sin mirar.
+atmosfera	fria	reaccion	El tono es correcto; el resto no.
+atmosfera	fria	fragmento	Un silencio que dura un segundo de más.
+atmosfera	aburrida	sensorial	El reloj marca un minuto que ya conocías.
+atmosfera	aburrida	ambiente	Nada nuevo entra por la puerta.
+atmosfera	aburrida	fragmento	La misma mancha en el techo.
+atmosfera	monotona	ambiente	El día se parece al de ayer hasta en los ruidos.
+atmosfera	monotona	sensorial	El mismo zumbido, el mismo café.
+atmosfera	hostil	ambiente	El espacio no te da sitio.
+atmosfera	hostil	reaccion	Nadie cede el paso.
+atmosfera	misteriosa	ambiente	Falta una pieza a la vista y todos lo saben.
+atmosfera	misteriosa	fragmento	Un cajón entreabierto que no debería estarlo.
+atmosfera	erotica	sensorial	El cuerpo ocupa más sitio que la conversación.
+atmosfera	erotica	ambiente	La ropa dice antes que la boca.
+atmosfera	erotica	reaccion	Se le nota la respiración un poco alta.
+atmosfera	erotica	fragmento	Un botón, un borde de tela, nada más.
+atmosfera	tensa	ambiente	Algo va a decirse y aún no.
+atmosfera	tensa	reaccion	Los hombros no bajan.
+atmosfera	opresiva	sensorial	El techo parece más bajo de lo que es.
+tipo_personaje	companera	perfil	Conoce tus horarios mejor que tú.
+tipo_personaje	companera	perfil	Habla como quien comparte el mismo pasillo todos los días.
+tipo_personaje	companera	reaccion	Te mira de reojo antes de contestar.
+tipo_personaje	companera	reaccion	Baja la voz aunque no haga falta.
+tipo_personaje	jefe	perfil	Mide el tiempo en resultados, no en minutos.
+tipo_personaje	jefe	reaccion	Interrumpe sin disculparse.
+tipo_personaje	rival	perfil	Sonríe cuando te equivocas.
+tipo_personaje	rival	reaccion	Repite tu frase un tono más frío.
+tipo_personaje	amante	perfil	La distancia profesional le queda pequeña.
+tipo_personaje	amante	reaccion	Se le va la mirada a la boca.
+tipo_personaje	sombra	perfil	Dice lo que tú no te atreves a pensar.
+tipo_personaje	aliado	reaccion	Se pone a tu lado sin preguntar.
+tipo_personaje	camaleon	perfil	Cambia de tono según quién entra.
+tipo_personaje	subalterno	reaccion	Espera a que termines para hablar.
+tipo_personaje	ciudadano	perfil	Gente del fondo; un testigo más.
+tipo_personaje	ciudadano	reaccion	Sigue con lo suyo como si no fueras asunto.
+tipo_personaje	ciudadano	fragmento	Un gesto pequeño, de quien comparte el mismo aire.
+tipo_personaje	heroe	perfil	La acción te pesa un poco más que a los demás.
+tipo_personaje	heroe	reaccion	Te quedas un segundo de más en lo que ves.
+tropo	ambicion	ambiente	Alguien mide lo que vale cada gesto.
+tropo	ambicion	fragmento	El puesto, el crédito, el siguiente peldaño.
+tropo	cotidiano	ambiente	Nada “pasa” y aun así todo pesa.
+tropo	cotidiano	fragmento	Un trámite, un café, una frase de más.
+tropo	seduccion	ambiente	Uno atrae; el otro decide si ceder.
+tropo	seduccion	reaccion	Se acerca medio paso y se detiene.
+tropo	vigilancia	ambiente	Alguien observa sin ser del todo visto.
+tropo	humillacion	ambiente	El estatus se rompe en un gesto pequeño.
+tropo	confesion	ambiente	Se dice lo que se callaba.
+tropo	duelo	ambiente	Dos voluntades empujan en sentido contrario.
+tropo	enigma	ambiente	Hay un secreto a la vista y nadie lo nombra.
+tropo	celos	reaccion	La sonrisa se queda a medias.
+tipo_historia	romance	ambiente	El vínculo es el motor, no el decorado.
+tipo_historia	cotidianidad	ambiente	La vida ordinaria, hasta que no.
+tipo_historia	intriga	ambiente	Los pasillos tienen oídos.
+prosa	saludo	fragmento	El día empieza sin anuncio.
+prosa	saludo	fragmento	Estás donde siempre, un segundo antes de que pase algo.

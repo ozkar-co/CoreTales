@@ -1,0 +1,62 @@
+id	nombre	resumen
+heroe	Héroe	Quien carga con la acción del jugador o su espejo.
+mentor	Mentor	Guía, a veces cansado o interesado.
+sombra	Sombra	El reverso de lo que el héroe podría ser.
+guardian	Guardián	Prueba el umbral; no deja pasar fácil.
+heraldo	Heraldo	Trae la noticia que cambia el día.
+camaleon	Camaleón	Cambia de máscara; no se sabe de qué lado está.
+aliado	Aliado	Acompaña, no protagoniza.
+trickster	Tramposo	Revuelve el tablero con humor o engaño.
+jefe	Jefe	Autoridad formal del lugar.
+rival	Rival	Compite por lo mismo.
+companera	Compañera	Par laboral o de vida; cercanía cotidiana.
+amante	Amante	El vínculo es deseo o cariño.
+extrano	Extraño	No pertenece del todo al círculo.
+inocente	Inocente	Ve menos de lo que hay, o finge.
+rebelde	Rebelde	Empuja contra la norma del sitio.
+sabio	Sabio	Sabe, y cobra caro el consejo.
+explorador	Explorador	Quiere ver detrás de la puerta.
+ciudadano	Ciudadano	Gente del fondo; testigo.
+antagonista	Antagonista	Se opone de frente.
+subalterno	Subalterno	Depende de otro; ve lo que el jefe no mira.
+ex	Ex	El vínculo anterior no se fue del todo.
+confidente	Confidente	Se le dice lo que no se le dice al resto.
+celestina	Celestina	Acerca cuerpos; cobra en secretos o en favores.
+bufon	Bufón	Dice la verdad como si fuera chiste.
+chivo	Chivo expiatorio	El grupo necesita a alguien a quien echarle.
+doble	Doble	Parece vos, o el que deberías ser.
+padre	Padre	Autoridad doméstica, cariño o deuda.
+madre	Madre	Cuidado que puede ahogar o sostener.
+hermano	Hermano	Igual y rival desde siempre.
+hijo	Hijo	El futuro de otro, o su cargo.
+vecino	Vecino	Tan cerca que oye, tan lejos que no debe.
+cliente	Cliente	Paga y por eso cree mandar.
+pasante	Pasante	Está de paso y ve lo que los fijos ya no ven.
+conserje	Conserje	Tiene las llaves y el horario de todos.
+recepcionista	Recepcionista	Filtra quién entra; oye más de lo que dice.
+camarero	Camarero	Sirve y testimonia.
+medico	Médico	Toca el cuerpo con permiso formal.
+sacerdote	Sacerdote	Guarda un umbral que otros creen sagrado.
+policia	Policía	La ley con zapatos.
+abogado	Abogado	Convierte el daño en forma.
+periodista	Periodista	Quiere la frase que el otro no daría.
+soldado	Soldado	El daño es su oficio, o su miedo.
+ladron	Ladrón	Toma lo que no es suyo y conoce los bordes.
+mendigo	Mendigo	Está fuera del círculo y lo ve entero.
+guarda	Guarda	El umbral físico: deja pasar o no.
+forastero	Forastero	Llega de otro mapa.
+aprendiz	Aprendiz	Todavía no es; por eso pregunta de más.
+maestro	Maestro	Enseña un oficio y un precio.
+mercader	Mercader	Todo tiene número.
+amante_oculto	Amante oculto	El horario que no figura.
+rival_afectivo	Rival afectivo	Compite por ser el querido, no por el puesto.
+jefe_intermedio	Jefe intermedio	Manda poco y obedece mucho.
+anciano	Anciano	El tiempo ya se le ve; sabe o finge.
+nino	Niño	Ve sin el filtro que los demás usan.
+guardaespaldas	Guardaespaldas	El cuerpo de otro es su trabajo.
+trabajador_sexual	Trabajador sexual	El deseo ajeno es el oficio; el propio, otra cosa.
+borracho	Borracho	La lengua se suelta y el cuerpo no ayuda.
+viudo	Viudo	El ausente sigue sentado en la silla vacía.
+huerfano	Huérfano	Falta quien debía estar.
+espia	Espía	Mira para otro; sonríe para este.
+provocador	Provocador	Empuja a los demás a hacer lo que no harían solos.

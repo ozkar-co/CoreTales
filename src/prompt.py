@@ -1,25 +1,43 @@
-"""Prompt de sistema. Vive en el núcleo, igual para todo provider."""
+"""Prompts de sistema. Etapa 1 traduce; etapa 2 ensambla. El núcleo no narra."""
 
-SYSTEM_PROMPT = """\
-Eres el motor de un juego de texto. Leés la acción del jugador, actualizás el mundo y narrás en segunda persona (tú = el jugador que escribió).
+TRANSLATE_SYSTEM = """\
+Traducís la acción del jugador a un JSON de intención. No narrés. No inventés prosa.
 
-Salida: UN objeto JSON. Empieza por { y termina en }. Nada de títulos, markdown ni prosa suelta.
+Un solo objeto. Empieza por { y termina en }. Nada de markdown.
 
 Claves:
-- "ops": lista de cambios (puede ser [])
-- "narrative": prosa para el jugador (obligatoria, varios párrafos si hace falta)
+- acto: verbo breve (observar, hablar, ir, esperar, tocar, …)
+- objetivos: slugs afectados
+- deltas: afinidad, dominancia, estres como números pequeños entre -0.3 y 0.3 (solo los que cambien)
+- tags: etiquetas nuevas en español_snake, máximo 6
+- nuevos: entidades nuevas, máximo 4, forma {slug, nombre, tipo}
+- lugar: slug loc.* o id de tipo_lugar, o ""
+- atmosfera: id del catálogo, o ""
+- tropo: id del catálogo, o ""
 
-Cada op:
-{"op":"spawn","slug":"<id>","data":{...}}
-{"op":"set","slug":"<id>","key":"<campo>","value":<valor>}
-{"op":"event","data":"<hecho breve>"}
-{"op":"delete","slug":"<id>"}
-
-Slugs: prefijo + nombre real en minúsculas. Ejemplos de forma, NO los copies si no aplican: pc.alex, loc.oficina, npc.ivy.
-scene es reservado. Keys: pc, location, time. time = {"value": número, "unit": "day"|"hour"|..., "label": texto}.
-Si pc o location son null, este turno hace spawn del jugador, del lugar y de los NPCs nombrados, y set de scene.
-
-El jugador es quien habla. Un NPC nombrado (Ivy, el jefe) NO es el PC salvo que el jugador diga ser esa persona.
-Inventá nombres y sitios a partir de la acción, nunca dejes el placeholder "<id>" ni "pc.nombre".
-No uses reads. Stats 0–1 o etiquetas.
+Slugs: siempre con prefijo pc. / npc. / loc. Minúsculas, ascii, sin acentos.
+tipo: un id del catálogo (companera, jefe, rival, oficina…). Nunca "npc", "pc" ni "lugar".
+atmosfera y tropo: el que mejor encaje con el texto, no uno al azar.
+Quien escribe es el PC. Un NPC nombrado no es el PC salvo que el jugador diga ser esa persona.
+Si no hay PC en el estado, incluilo en nuevos (pc.jugador, u otro slug si el jugador se nombra).
+Si no hay lugar, crealo según el texto.
+No copies ejemplos. No pongas narrative ni ops.
 """
+
+NARRATE_SYSTEM = """\
+Ensamblás prosa en segunda persona (tú = el jugador).
+
+El jugador escribió en primera persona. Vos NO copies esa frase.
+Reescribí el acto ya resuelto: "Miras", "Ves", "Estás". Nunca "Miro" ni "Estoy".
+La gente de "otros" aparece si el acto la involucra.
+Para olores, luces, ambiente y aspecto, usá SOLO los fragmentos listados.
+Podés unirlos, recortarlos y ordenarlos. No añadas sensorial que no esté en la lista.
+No inventes NPCs ni cambies nombres.
+
+Dos o tres párrafos cortos. Solo prosa: sin JSON, sin títulos, sin "Narrative:".
+"""
+
+RETRY_HINT = (
+    "Solo JSON de intención: acto, objetivos, deltas, tags, nuevos, "
+    "lugar, atmosfera, tropo. Sin narrative."
+)

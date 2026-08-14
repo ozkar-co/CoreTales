@@ -1,0 +1,293 @@
+id	nombre	resumen	familia
+mundano	Mundano	Lo ordinario pesa más que el acontecimiento.	cotidiano
+burocratico	Burocrático	El sello, la cola, el formulario mandan.	cotidiano
+laboral	Laboral	El trabajo organiza el tiempo y el gesto.	cotidiano
+domestico	Doméstico	La casa, los platos, lo que no se dice en la mesa.	cotidiano
+tramite	Trámite	Hay que pasar por un procedimiento para llegar a lo vivo.	cotidiano
+espera	Espera	El tiempo no avanza; se lo siente.	cotidiano
+rutina	Rutina	El día se parece al de ayer hasta en los ruidos.	cotidiano
+aburrimiento	Aburrimiento	Nada nuevo entra; el reloj es el antagonista.	cotidiano
+estancamiento	Estancamiento	Se podría irse y no se va.	cotidiano
+vecindad	Vecindad	Gente cerca que no es íntima y aun así oye.	cotidiano
+consumo	Consumo	Objetos, marcas, el precio como medida.	cotidiano
+desplazamiento	Desplazamiento	Ir de un sitio a otro ya es la escena.	cotidiano
+horario	Horario	La hora marca más que la voluntad.	cotidiano
+ruido_de_fondo	Ruido de fondo	Lo que no es el tema y no se puede apagar.	cotidiano
+etiqueta	Etiqueta	Normas chicas que duelen si se rompen.	cotidiano
+cortesia	Cortesía	Lo correcto tapa lo que se piensa.	cotidiano
+chisme	Chisme	La noticia viaja más rápido que la persona.	cotidiano
+rumor_social	Rumor social	Nadie lo vio; todos lo comentan.	cotidiano
+cola	Cola	El orden de llegada humilla o protege.	cotidiano
+mantenimiento	Mantenimiento	Arreglar lo que se rompe para que nada cambie.	cotidiano
+higiene_publica	Higiene pública	El cuerpo ajeno, el baño, el olor del compartido.	cotidiano
+comida_rapida	Comida rápida	Alimentarse sin ceremonia.	cotidiano
+transporte	Transporte	Cuerpos juntos que no se deben nada.	cotidiano
+descanso_roto	Descanso roto	El ocio no descansa.	cotidiano
+romance	Romance	El vínculo afectivo es el motor, no el decorado.	afecto
+ternura	Ternura	Un gesto chico que no pide nada a cambio.	afecto
+apego	Apego	Quedarse cerca cueste lo que cueste.	afecto
+cuidado	Cuidado	Atender el cuerpo o el ánimo de otro.	afecto
+soledad	Soledad	Nadie entra, o entra y no cuenta.	afecto
+abandono	Abandono	Se iban a quedar y no quedaron.	afecto
+duelo_afectivo	Duelo afectivo	El cariño sigue y el otro no.	afecto
+reconciliacion	Reconciliación	Se vuelve a un vínculo que se había roto.	afecto
+ruptura	Ruptura	Se nombra el final, o se actúa como si ya estuviera.	afecto
+amistad	Amistad	Cercanía sin el contrato del deseo.	afecto
+lealtad_afectiva	Lealtad afectiva	Se elige a alguien contra el resto.	afecto
+nostalgia	Nostalgia	El pasado huele mejor de lo que fue.	afecto
+anhelo	Anhelo	Se desea un estado que no llega.	afecto
+proteccion	Protección	Poner el cuerpo o la mentira entre el otro y el golpe.	afecto
+dependencia	Dependencia	No se sabe estar si el otro no está.	afecto
+celos	Celos	La sospecha de pérdida de afecto distorsiona cada gesto.	afecto
+posesividad	Posesividad	El otro se trata como territorio.	afecto
+carencia	Carencia	Falta algo que no se nombra bien.	afecto
+reencuentro	Reencuentro	Volver a verse después de un corte.	afecto
+despedida	Despedida	El último rato juntos, o el que finge no serlo.	afecto
+hogar_emocional	Hogar emocional	Este cuerpo, esta voz, es donde se descansa.	afecto
+indiferencia_afectiva	Indiferencia afectiva	No duele: eso es lo que duele.	afecto
+erotismo	Erotismo	El cuerpo ocupa más sitio que la conversación.	deseo
+coqueteo	Coqueteo	Se tira el anzuelo y se mide la respuesta.	deseo
+seduccion	Seducción	Uno atrae; el otro resiste o cede.	deseo
+tentacion	Tentación	Se ofrece algo que no se debería tomar.	deseo
+tabu	Tabú	El deseo choca con una norma que todos conocen.	deseo
+transgresion	Transgresión	Se cruza una línea a propósito.	deseo
+exhibicion	Exhibición	Mostrarse es el acto.	deseo
+voyeurismo	Voyeurismo	Ver sin ser del todo visto, y eso basta.	deseo
+contencion	Contención	Se podría tocar y no se toca.	deseo
+entrega_erotica	Entrega	Se cede el control del cuerpo un rato.	deseo
+rechazo_erotico	Rechazo erótico	El deseo de uno no encuentra al otro.	deseo
+distancia_corporal	Distancia corporal	El espacio entre dos cuerpos es la frase.	deseo
+calor	Calor	La temperatura sube y no es el clima.	deseo
+verguenza_corporal	Vergüenza corporal	El cuerpo se siente de más.	deseo
+lujuria	Lujuria	El hambre no pide relato.	deseo
+pudor	Pudor	Se tapa lo que se quiere mostrar.	deseo
+roce	Roce	Un contacto mínimo carga más que un discurso.	deseo
+mirada_cargada	Mirada cargada	Los ojos llegan antes que la mano.	deseo
+amenaza	Amenaza	Algo puede hacer daño y está cerca.	miedo
+horror	Horror	Lo que se ve no debería poder verse.	miedo
+paranoia	Paranoia	El peligro podría estar en cualquiera.	miedo
+persecucion	Persecución	Uno huye; el otro no suelta.	miedo
+supervivencia	Supervivencia	Aguantar el entorno es el único plan.	miedo
+violencia	Violencia	El daño ya no es metáfora.	miedo
+peligro_fisico	Peligro físico	El cuerpo puede romperse ahora.	miedo
+peligro_social	Peligro social	El grupo puede expulsarte.	miedo
+peligro_economico	Peligro económico	El sueldo, la deuda, el techo.	miedo
+peligro_legal	Peligro legal	La ley puede entrar por la puerta.	miedo
+claustrofobia	Claustrofobia	El espacio se cierra; hay pocas salidas.	miedo
+exposicion	Exposición	Te ven de más; no hay dónde esconderse.	miedo
+vigilancia	Vigilancia	Alguien observa sin ser del todo visto.	miedo
+acecho	Acecho	La presencia ajena se siente antes de verse.	miedo
+presagio	Presagio	El cuerpo sabe que viene algo.	miedo
+inquietud	Inquietud	Nada concreto, y aun así no se está bien.	miedo
+panico	Pánico	El miedo deja de caber en el pecho.	miedo
+amenaza_psicologica	Amenaza psicológica	Te deshacen por dentro, sin marcar la piel.	miedo
+acecho_social	Acecho social	Te siguen con comentarios, no con pasos.	miedo
+intimidacion	Intimidación	Se muestra el poder para que te encogas.	miedo
+amenaza_velada	Amenaza velada	La frase educada esconde el golpe.	miedo
+miedo_al_vacio	Miedo al vacío	Da más miedo que no pase nada.	miedo
+jerarquia	Jerarquía	Arriba y abajo se sientan en sillas distintas.	poder
+ambicion	Ambición	El hambre de puesto o de nombre mueve la escena.	poder
+humillacion	Humillación	El estatus se rompe en un gesto pequeño.	poder
+status	Estatus	Quién mira a quién, y desde dónde.	poder
+revuelta	Revuelta	Se desafía una autoridad.	poder
+sumision	Sumisión	Se cede el mando, a gusto o no.	poder
+dominacion	Dominación	Se toma el mando del espacio o del otro.	poder
+chantaje	Chantaje	Un secreto se usa como palanca.	poder
+deuda	Deuda	Se debe, y eso ordena la escena.	poder
+favor	Favor	Lo que se da hoy se cobra mañana.	poder
+privilegio	Privilegio	A alguien las normas no le pesan igual.	poder
+exclusion	Exclusión	El círculo se cierra y vos quedás afuera.	poder
+acoso	Acoso	La insistencia no pide permiso.	poder
+autoridad	Autoridad	Quien manda no necesita alzar la voz.	poder
+insubordinacion	Insubordinación	Se dice que no a quien no se le dice que no.	poder
+rivalidad	Rivalidad	Dos fuerzas se disputan lo mismo.	poder
+competencia	Competencia	Hay un marcador, aunque no se vea.	poder
+credito	Crédito	Quién se lleva el reconocimiento.	poder
+verguenza_publica	Vergüenza pública	El daño se hace con testigos.	poder
+impunidad	Impunidad	Puede hacerlo porque nadie lo para.	poder
+servilismo	Servilismo	Adular es la estrategia.	poder
+nepotismo	Nepotismo	La sangre o el afecto valen más que el mérito.	poder
+misterio	Misterio	Falta una pieza y el mundo no quiere darla.	verdad
+enigma	Enigma	Hay que resolver un secreto, un crimen o una mentira.	verdad
+secreto	Secreto	Alguien sabe y no dice.	verdad
+mentira	Mentira	Se dice otra cosa de propósito.	verdad
+apariencia	Apariencia	Lo que se ve no es lo que hay.	verdad
+mascara	Máscara	El rol tapa a la persona.	verdad
+descubrimiento	Descubrimiento	Se revela un hecho que cambia el tablero.	verdad
+confesion	Confesión	Se dice lo que se callaba.	verdad
+sospecha	Sospecha	Todavía no es prueba y ya pesa.	verdad
+duda	Duda	No se sabe si fiarse de lo que se ve.	verdad
+identidad_oculta	Identidad oculta	Alguien no es quien dice ser.	verdad
+malentendido	Malentendido	Se actúa sobre una creencia falsa.	verdad
+omision	Omisión	Lo grave es lo que no se dijo.	verdad
+archivo	Archivo	La verdad está en un papel, un mail, un cajón.	verdad
+prueba	Prueba	Hay un objeto o una frase que no se puede negar.	verdad
+silencio_complice	Silencio cómplice	Todos saben y nadie abre la boca.	verdad
+rumor_oculto	Rumor oculto	La pista llega torcida, de oídas.	verdad
+evidencia	Evidencia	Lo obvio estaba a la vista y no se quería ver.	verdad
+farsa	Farsa	Se representa una escena para engañar.	verdad
+doble_vida	Doble vida	Hay otro horario, otro nombre, otra cama.	verdad
+culpa	Culpa	El daño hecho vuelve como peso.	moral
+remordimiento	Remordimiento	El pasado no se queda en el pasado.	moral
+sacrificio	Sacrificio	Se entrega algo irrecuperable.	moral
+redencion	Redención	Se intenta reparar lo que uno rompió.	moral
+traicion	Traición	Se rompe una confianza dada.	moral
+justicia	Justicia	Se pide que el daño tenga consecuencia.	moral
+venganza	Venganza	Se cobra una ofensa, con o sin derecho.	moral
+dilema	Dilema	Dos deberes no caben a la vez.	moral
+hipocresia	Hipocresía	Se predica una norma que no se cumple.	moral
+deber	Deber	Hay que, aunque no se quiera.	moral
+perdon	Perdón	Se suelta una deuda moral.	moral
+condena	Condena	El juicio ya está hecho.	moral
+complicidad	Complicidad	Se comparte la falta, en silencio o en acto.	moral
+inocencia_perdida	Inocencia perdida	Se ve lo que ya no se puede dejar de ver.	moral
+necesidad_cruel	Necesidad cruel	Hay que elegir entre dos males.	moral
+juramento	Juramento	Una promesa ata más que el gusto.	moral
+corrupcion	Corrupción	La regla se vende.	moral
+escrupulo	Escrúpulo	Un freno interno, a destiempo o justo.	moral
+urgencia	Urgencia	Si no es ahora, no es.	tiempo
+espera_larga	Espera larga	El después tarda más que el cuerpo.	tiempo
+plazo	Plazo	Hay una fecha y se siente.	tiempo
+retraso	Retraso	Se llega tarde a lo que importaba.	tiempo
+reminiscencia	Reminiscencia	El ahora se llena de entonces.	tiempo
+finitud	Finitud	Se acaba, y se sabe.	tiempo
+repeticion	Repetición	Otra vez el mismo nudo.	tiempo
+instante	Instante	Un segundo decide más que un año.	tiempo
+vejez	Vejez	El tiempo ya se ve en el cuerpo.	tiempo
+prisa	Prisa	No hay sitio para pensarlo.	tiempo
+pausa	Pausa	El silencio entre dos actos.	tiempo
+aniversario	Aniversario	La fecha vuelve y pide una escena.	tiempo
+atraso_vital	Atraso vital	La vida de uno no llegó a donde debía.	tiempo
+ahora_o_nunca	Ahora o nunca	La ventana se cierra.	tiempo
+hambre	Hambre	El cuerpo pide y no entiende de relatos.	cuerpo
+cansancio	Cansancio	Ya no hay margen.	cuerpo
+enfermedad	Enfermedad	El cuerpo manda sobre la agenda.	cuerpo
+dolor	Dolor	Duele, y eso ordena.	cuerpo
+placer	Placer	El cuerpo dice sí más alto que la cabeza.	cuerpo
+resaca	Resaca	La noche anterior no se fue.	cuerpo
+frio_corporal	Frío corporal	El frío entra y no es metáfora.	cuerpo
+calor_corporal	Calor corporal	Sudor, fiebre, encierro.	cuerpo
+herida	Herida	Hay marca, sangre o venda.	cuerpo
+suciedad	Suciedad	Lo que debería estar limpio no lo está.	cuerpo
+aseo	Aseo	Lavarse, vestirse, componerse la cara.	cuerpo
+intoxicacion	Intoxicación	Algo en la sangre tuerce la percepción.	cuerpo
+sueno	Sueño	Los párpados pesan más que la escena.	cuerpo
+asco	Asco	El cuerpo rechaza antes que la moral.	cuerpo
+hambre_de_aire	Hambre de aire	Falta aire, o lo parece.	cuerpo
+fatiga_sexual	Fatiga sexual	El deseo está, el cuerpo no da más.	cuerpo
+rito	Rito	Hay un orden sagrado, aunque sea de oficina.	sagrado
+profano	Profano	Se trata sin respeto lo que otros veneran.	sagrado
+umbral	Umbral	Pasar de un lado al otro cambia las reglas.	sagrado
+lo_sagrado	Lo sagrado	Hay algo que no se toca.	sagrado
+supersticion	Superstición	Un gesto chico para atraer o ahuyentar.	sagrado
+ofrenda	Ofrenda	Se da algo para pedir otra cosa.	sagrado
+maldicion	Maldición	Un daño que se cree heredado o dicho.	sagrado
+milagro	Milagro	Pasa lo que no debería poder pasar.	sagrado
+pecado	Pecado	La falta tiene nombre viejo.	sagrado
+penitencia	Penitencia	Se paga con el cuerpo o con el retiro.	sagrado
+votivo	Votivo	Una promesa hecha hacia arriba.	sagrado
+sacrilegio	Sacrilegio	Se rompe a propósito lo intocable.	sagrado
+comedia	Comedia	El roce social se vuelve absurdo.	comic
+ironia	Ironía	Se dice lo contrario para que se oiga lo cierto.	comic
+absurdo	Absurdo	La lógica del sitio no cierra y se sigue.	comic
+grotesco	Grotesco	El exceso da asco y risa a la vez.	comic
+sarcasmo	Sarcasmo	El chiste es un golpe.	comic
+farsa_comica	Farsa	Nadie cree del todo y aun así representan.	comic
+incomodidad_comica	Incomodidad cómica	Da risa porque no se puede salir.	comic
+malentendido_comico	Malentendido cómico	El error es gracioso para quien mira.	comic
+burla	Burla	Se ríen, y el objeto de la risa está presente.	comic
+ridiculez	Ridiculez	El cuerpo o el plan quedan en evidencia.	comic
+exceso_festivo	Exceso festivo	Hay de más: luz, alcohol, voz.	comic
+cinismo	Cinismo	Ya no se finge que importa.	comic
+tragedia	Tragedia	El fallo es irreversible.	fatal
+fatalidad	Fatalidad	Iba a pasar, y pasa.	fatal
+perdida	Pérdida	Alguien o algo se va y no vuelve igual.	fatal
+muerte	Muerte	El final biológico entra en la escena.	fatal
+ruina	Ruina	Se cae el sostén: dinero, nombre, techo.	fatal
+decadencia	Decadencia	Lo que fue no se sostiene.	fatal
+desastre	Desastre	Una catástrofe cae sobre el grupo o el lugar.	fatal
+irreversibilidad	Irreversibilidad	No hay cómo deshacerlo.	fatal
+duelo_mortal	Duelo mortal	Se llora a un muerto, o se finge que no.	fatal
+orfandad	Orfandad	Falta quien debía estar.	fatal
+quiebra	Quiebra	Los números no cierran y se acaba el juego.	fatal
+exilio	Exilio	No se puede volver al sitio propio.	fatal
+caida	Caída	Del puesto, de la gracia, de la imagen.	fatal
+guerra	Guerra	Bandos, lealtades, daño organizado.	bando
+lealtad_de_bando	Lealtad de bando	Se elige un nosotros contra un ellos.	bando
+desercion	Deserción	Se abandona el bando.	bando
+ocupacion	Ocupación	El espacio ya no es de quienes lo habitaban.	bando
+tregua	Tregua	Se deja de pegar un rato.	bando
+botin	Botín	Lo que se toma al otro.	bando
+sitio	Sitio	Cercado, con el tiempo en contra.	bando
+traicion_de_bando	Traición de bando	Se vende el nosotros.	bando
+recluta	Recluta	Te incorporan, quieras o no.	bando
+civil_en_guerra	Civil en guerra	El daño pasa por quien no eligió bando.	bando
+odio	Odio	El rencor ordena cada gesto.	moral
+huida	Huida	Se abandona el lugar o el rol.	miedo
+temeridad	Temeridad	Se acomete algo desproporcionado.	poder
+envidia	Envidia	El bien del otro se siente como agravio.	poder
+triangulo	Triángulo	Tres no caben en el vínculo de dos.	afecto
+silencio	Silencio	Lo que no se dice ocupa el cuarto.	verdad
+testigo	Testigo	Alguien vio y eso cambia el precio.	verdad
+objeto_cargado	Objeto cargado	Una cosa pequeña pesa más que el diálogo.	verdad
+mensaje	Mensaje	Un texto, una nota, una llamada a destiempo.	verdad
+puerta_entreabierta	Puerta entreabierta	El umbral invita y compromete.	deseo
+pretexto	Pretexto	Se entra por una excusa.	deseo
+cuidado_ajeno	Cuidado ajeno	El cuerpo del otro está en tus manos.	afecto
+hambre_de_reconocimiento	Hambre de reconocimiento	Se hace lo que sea por ser visto.	poder
+verguenza_privada	Vergüenza privada	Nadie mira y aun así quema.	poder
+alivio	Alivio	Por un rato deja de apretar.	cuerpo
+asombro	Asombro	El mundo era otro, o más grande.	verdad
+fastidio	Fastidio	No es odio: es roce acumulado.	cotidiano
+piedad	Piedad	Se mira al caído sin subirse encima.	moral
+crueldad	Crueldad	Se disfruta o se usa el daño.	poder
+ternura_sucia	Ternura sucia	El cariño no es limpio y sigue siendo cariño.	afecto
+distancia_social	Distancia social	La clase se nota en el vaso y en el tono.	poder
+hambre_de_casa	Hambre de casa	Se quiere un sitio que sea de uno.	afecto
+insomnio	Insomnio	La noche no entrega el descanso.	cuerpo
+resfriado_del_alma	Resfriado del ánimo	Todo está un grado más opaco.	cotidiano
+euforia	Euforia	Sube de más, y se va a notar.	comic
+verguenza_ajena	Vergüenza ajena	Duele el ridículo del otro.	comic
+compasión	Compasión	Se padece un poco con el otro.	afecto
+desprecio	Desprecio	Se mira de arriba, aunque se sonría.	poder
+curiosidad	Curiosidad	Se quiere ver detrás de la puerta.	verdad
+aburrimiento_erotico	Aburrimiento erótico	El deseo está rutinizado.	deseo
+celibato_forzado	Abstinencia tensa	No se toca y eso es todo lo que se piensa.	deseo
+orgullo	Orgullo	No se pide, no se baja la cabeza.	poder
+miedo_al_ridiculo	Miedo al ridículo	Más que el golpe, da miedo que se rían.	miedo
+esperanza	Esperanza	Todavía podría salir bien.	afecto
+desesperacion	Desesperación	Ya no hay plan B.	fatal
+gratitud	Gratitud	Se debe un bien, y se nota.	moral
+rencor	Rencor	La cuenta sigue abierta.	moral
+obsesion	Obsesión	Un objeto, una persona, una idea no suelta.	deseo
+hastio	Hastío	Hasta el placer cansa.	cotidiano
+luto	Luto	El mundo pide formas para la pérdida.	fatal
+fiesta	Fiesta	La alegría obligatoria.	comic
+intimidacion_erotica	Intimidación erótica	El deseo se usa como amenaza.	deseo
+ternura_paternal	Ternura parental	Cuidar como quien no puede no cuidar.	afecto
+rivalidad_afectiva	Rivalidad afectiva	Se compite por ser el querido.	afecto
+secreto_a_voces	Secreto a voces	Todos lo saben y se finge que no.	verdad
+chapuza	Chapuza	Se resuelve mal, y se sigue.	cotidiano
+profesionalidad	Profesionalidad	El rol tapa el temblor.	cotidiano
+verguenza_de_clase	Vergüenza de clase	El origen se nota y se esconde.	poder
+hambre_de_toque	Hambre de toque	Falta piel, no conversación.	deseo
+miedo_a_querer	Miedo a querer	El afecto se siente como trampa.	afecto
+fidelidad	Fidelidad	Se sostiene un pacto cuando sería más fácil no.	moral
+infidelidad_emocional	Infidelidad emocional	Se entregó la intimidad a otro sitio.	afecto
+rutina_conyugal	Rutina conyugal	El vínculo largo se volvió horario.	cotidiano
+sed_de_escandalo	Sed de escándalo	Se quiere que explote, para sentir.	comic
+calma_falsa	Calma falsa	Está quieto de más.	miedo
+amenaza_domestica	Amenaza doméstica	El peligro vive en casa.	miedo
+caridad	Caridad	Se da desde arriba.	poder
+solidaridad	Solidaridad	Se da desde el mismo piso.	afecto
+soledad_acompanada	Soledad acompañada	Hay gente y igual no hay nadie.	afecto
+exceso_de_luz	Exceso de luz	Todo se ve, nada se esconde.	verdad
+penumbra	Penumbra	Se ve lo justo para imaginar el resto.	deseo
+olor_a_otro	Olor a otro	El cuerpo del ausente sigue en la tela.	afecto
+deuda_de_sangre	Deuda de sangre	La familia cobra lo que no se pidió.	moral
+orgullo_herido	Orgullo herido	Duele más la imagen que el hecho.	poder
+miedo_al_abandono	Miedo al abandono	Cualquier silencio se lee como adiós.	afecto
+hambre_de_castigo	Hambre de castigo	Se busca que duela, para cuadrar.	moral
+alivio_culpable	Alivio culpable	Mejoró, y eso también pesa.	moral
+deseo_de_huir	Deseo de huir	El cuerpo ya está en la puerta.	miedo
+quedarse	Quedarse	No irse es la decisión.	afecto

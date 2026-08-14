@@ -1,0 +1,61 @@
+id	nombre	resumen
+oficina	Oficina	Cubículos, fluorescentes, tiempo medido.
+despacho	Despacho	Puerta, jerarquía, conversación a solas.
+taberna	Taberna	Voces, vaso, testigos.
+calle	Calle	Tránsito, nadie es del todo de nadie.
+casa	Casa	Íntimo, objetos con historia.
+bosque	Bosque	Poco control, mucho oído.
+puerto	Puerto	Llegadas, partidas, olores.
+templo	Templo	Rito, silencio, umbral.
+calabozo	Calabozo	Límites físicos.
+azotea	Azotea	Arriba de todo, viento, ciudad abajo.
+cocina	Cocina	Calor, cuchillos, el sitio donde se habla de verdad.
+dormitorio	Dormitorio	Cama, ropa en una silla, el olor de quien duerme ahí.
+bano	Baño	Espejo, azulejo, un minuto a solas que no lo es.
+pasillo	Pasillo	De paso; se oye lo que no se debía.
+ascensor	Ascensor	Cuerpos juntos, piso que no llega.
+sotano	Sótano	Debajo de todo, humedad, lo que se guarda.
+desvan	Desván	Arriba, polvo, lo que no se tiró.
+jardin	Jardín	Verde de mentira o de verdad; vecinos al otro lado.
+balcon	Balcón	Aire, altura, la calle como teatro.
+estacion	Estación	Gente que se va; reloj; maletas.
+andén	Andén	El tren, o su ausencia.
+auto	Auto	Habitación en movimiento; no se puede salir del todo.
+bus	Colectivo	Cuerpos ajenos, paradas, el vidrio empañado.
+metro	Subte	Túnel, anuncio, manos en el caño.
+plaza	Plaza	Bancos, palomas, quien no tiene a dónde ir.
+mercado	Mercado	Voces, precio, olores que no se eligen.
+tienda	Tienda	Objetos bajo luz; se mide a quien entra.
+bar	Bar	Más oscuro que la taberna; menos testigos o más.
+restaurante	Restaurante	Mesas, cubiertos, la conversación a medio volumen.
+hotel	Hotel	Pasillos iguales; nadie es de ahí.
+habitacion_hotel	Habitación de hotel	Cama ajena, minibar, la ciudad por la cortina.
+hospital	Hospital	Pasillos largos, alcohol, esperas.
+consultorio	Consultorio	Camilla, diploma, el cuerpo en tercera persona.
+escuela	Escuela	Pasillos, timbre, alguien que todavía no eligió.
+aula	Aula	Pizarra, pupitres, mirar sin que se note.
+iglesia	Iglesia	Banco, eco, un silencio que pide forma.
+cementerio	Cementerio	Nombres en piedra; el césped demasiado cuidado.
+almacen	Almacén	Cajas, polvo, lo que no está en el frente.
+archivo	Archivo	Estantes, fechas, papeles que no querían verse.
+fabrica	Fábrica	Ruido, turno, el cuerpo como pieza.
+taller	Taller	Grasa, herramientas, algo a medio hacer.
+cochera	Cochera	Oscuridad de auto, aceite, eco.
+azotea_interna	Patio interior	Ropa colgada, voces de otras casas.
+terraza	Terraza	Mesa afuera, insectos, la noche más cerca.
+sotano_bar	Sótano de bar	Música abajo, poco aire, más permiso.
+vestuario	Vestuario	Cuerpos, casilleros, el umbral de la ropa.
+ducha	Ducha	Vapor, azulejo, alguien al otro lado de la cortina.
+cocina_industrial	Cocina industrial	Gritos, fuego, el plato como plazo.
+sala_espera	Sala de espera	Revistas viejas, el nombre que no llaman.
+sala_reuniones	Sala de reuniones	Pizarra, jarra de agua, sillas que no son de nadie.
+cubículo	Cubículo	Tres paredes, una vida.
+cafeteria	Cafetería	Taza, vidrio a la calle, tiempo prestado.
+biblioteca	Biblioteca	Silencio impuesto, papel, alguien que tose.
+cine	Cine	Oscuridad pactada, la cara del otro a ratos.
+estacionamiento	Estacionamiento	Faroles naranjas, ecos, el auto como isla.
+callejón	Callejón	Poco ancho, poco testigo.
+muelle	Muelle	Madera húmeda, agua negra, sogas.
+granero	Granero	Polvo de grano, sombra alta.
+cocina_ajena	Cocina ajena	Los cajones no están donde tu mano busca.
+cama_ajena	Cama ajena	Las sábanas no huelen a vos.

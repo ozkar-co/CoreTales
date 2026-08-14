@@ -1,0 +1,15 @@
+# Catálogo de referencia (txt = import/export; SQLite es canónico).
+
+Formato: TSV UTF-8, primera línea cabecera, `#` ignora.
+
+- tropos, tipos_historia, tipos_personaje, tipos_lugar, atmosferas: anclas (set cerrado).
+- frases: nube (muchas filas por ancla). Enriquecer a mano = añadir filas y `python3 scripts/import_catalog.py`.
+
+## Fuentes (formulación propia en español; no se copió TVTropes)
+
+- Situaciones dramáticas: Georges Polti, *Les 36 situations dramatiques* (1895, dominio público). Ids y resúmenes nuestros.
+- Arquetipos de personaje: formulación propia a partir de roles narrativos de uso común (mentor, sombra, heraldo, etc.).
+- Tipos de historia y lugares: lista corta propia para un motor agnóstico de género.
+- Frases de las nubes: redacción original para CoreTales.
+
+Wikipedia / stock characters se consultó solo como orientación de cobertura; los textos del catálogo no son citas.

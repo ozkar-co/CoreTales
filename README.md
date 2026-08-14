@@ -15,9 +15,11 @@ Mezcla de novela gráfica, aventura conversacional y chat tipo Character AI / Du
 ## Layout
 
 ```
-src/         código (el prototipo de una llamada se reescribe al ciclo de dos etapas)
-scripts/     arranque y utilidades
-docs/        enfoque, descripción, hoja de ruta
+src/            motor (dos etapas: traducir → aplicar → ensamblar)
+scripts/        arranque, test_llm, import/export del catálogo
+data/catalogo/  anclas y nubes en TSV (import/export; SQLite es canónica)
+docs/           enfoque, descripción, hoja de ruta
+saves/          una SQLite = una partida (gitignorado)
 ```
 
 Stdlib. El LLM se asume ya sirviendo (llama.cpp u otro compatible OpenAI). La URL va en el adapter; `.env` solo secretos.
@@ -30,6 +32,8 @@ Servidor en `http://127.0.0.1:8080/v1`, modelo **instruct** (un 3B basta para pr
 ./scripts/run.sh
 CORE_TALES_DEBUG=1 ./scripts/run.sh
 ./scripts/test_llm.sh
+python3 scripts/import_catalog.py   # txt → saves/default.sqlite
+python3 scripts/export_catalog.py   # SQLite → data/catalogo/
 ```
 
-El jugador solo ve prosa. Ctrl-D o Ctrl-C para salir.
+El jugador solo ve prosa. Ctrl-D o Ctrl-C para salir. Tras un turno exitoso, el estado ya está en `saves/default.sqlite`.
