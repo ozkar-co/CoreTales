@@ -1,101 +1,75 @@
 # Hoja de Ruta
 
-Propuesta, no compromiso. El orden prioriza un núcleo jugable y el puerto de LLM antes de autoría rica. Cada fase debe poder usarse sola; la siguiente se apoya en ella, no la reescribe.
+Propuesta, no compromiso. El orden es el inverso al de un motor “de papel”: primero un LLM real que obedece y devuelve JSON; después el núcleo que interpreta esas llamadas; después una partida que se guarda y se reanuda. Lo demás (seeds, triggers, paquetes de aventura) se abre con los primeros usuarios, no se diseña antes.
 
-## Fase 0 — Contrato y esqueleto
+Cada fase debe poder usarse sola. La siguiente se apoya en ella; no la reescribe.
 
-**Objetivo:** poder explicar el sistema en una página y tener carpetas/módulos que coincidan con esa página.
+## Fase 1 — Conversar con el modelo
 
-- Contrato del turno: entrada, contexto, resultado estructurado, delta de estado.
-- Puerto `LlmAdapter` (interfaz + tipos). Sin implementaciones reales aún; un adapter falso que devuelve JSON fijo.
-- Esquema mínimo de persistencia: entidades, relaciones, log, partida.
-- CLI que imprime “turno” contra el adapter falso y SQLite.
+**Objetivo:** un LLM conectado, con contexto precargado, sin persistencia. Demostrar que entiende las instrucciones y responde JSON claro.
 
-**Listo cuando:** `python -m coretales` abre una partida, acepta una línea, persiste un delta inventado y lo vuelve a leer.
+- Puerto `LlmAdapter` real desde el día uno (un provider: Gemini u OpenAI). llama.cpp puede esperar.
+- Prompt de sistema en el núcleo: rol, obligación de JSON, forma mínima del objeto (ops y/o narración). El mismo prompt para cualquier provider.
+- CLI: el usuario escribe texto libre; se imprime la respuesta. Modo debug muestra el JSON crudo.
+- Contexto precargado en memoria (un bloque de instrucciones + un mundo mínimo de ejemplo). Nada de SQLite.
+- Reintento si el JSON sale malformado; si vuelve a fallar, se informa y se aborta el turno (no hay estado que corromper).
 
-## Fase 1 — Núcleo determinista
+**Listo cuando:** se puede hablar varios turnos, el modelo sigue el contrato, y el JSON es parseable de forma estable. Si esto no aguanta, no hay motor que construir.
 
-**Objetivo:** el estado es la fuente de verdad. El LLM (aunque sea falso) no escribe a ciegas en la base.
+## Fase 2 — El núcleo como interlocutor
 
-- Carga de contexto acotada (lugar actual, entidades presentes, N eventos recientes, relaciones relevantes).
-- Aplicación de deltas: crear/actualizar entidad, relación, evento. Rechazar claves o tipos inválidos.
-- Identidad de partida: crear, guardar, reanudar.
-- Log canónico: lo que ocurrió, no el prosa del modelo.
+**Objetivo:** dejar de mandar “todo el mundo” en un prompt. El LLM habla con el sistema: pide lo que necesita, el núcleo responde, y así en varias llamadas por cada input del jugador. Aquí se moldea cómo funciona CoreTales.
 
-**Listo cuando:** se puede jugar varios turnos con el adapter falso, cerrar, reabrir y ver el mismo mundo.
+- Parsear el JSON: lista de operaciones y/o peticiones de lectura (`get` entidad, relaciones, log reciente, etc.).
+- Bucle interno por turno de usuario: llamada → el núcleo ejecuta lecturas o acumula ops → nueva llamada con el resultado → hasta que el modelo entrega la narración (o aborta).
+- Estado en memoria. Guardar y aplicar ops ya cuenta; el disco puede esperar.
+- El adapter sigue siendo un solo método síncrono. El bucle de “el modelo consulta al sistema” vive en el núcleo, no en el vendor.
+- Cada petición al LLM es independiente (sin ventana de chat acumulada). El núcleo recorta y entrega solo lo pedido.
+- Turno atómico respecto al jugador: si una llamada falla del todo, no se aplica el lote; se informa y se puede repetir el input.
 
-## Fase 2 — Adapter de LLM real
+**Listo cuando:** un input del jugador provoca varias idas y vueltas, el modelo obtiene datos a demanda, aplica ops coherentes, y la consola muestra solo prosa (JSON en debug). El contrato de “qué puede pedir el LLM” está claro, aunque el almacén aún no sea un archivo.
 
-**Objetivo:** un solo puerto, tres backends posibles, ninguno filtrado en el núcleo.
+## Fase 3 — Partida usable
 
-- Implementar el puerto para **uno** de: OpenAI, Gemini, llama.cpp. El primero es el que desbloquee desarrollo (probablemente OpenAI o Gemini por iterar rápido; llama.cpp para el criterio “local”).
-- Normalizar petición/respuesta al contrato de turno. Reintentos y error de parseo: el núcleo no se cae; pide de nuevo o aborta el turno con mensaje claro.
-- Configuración por entorno/archivo: proveedor, modelo, endpoint. Cero imports de SDK de vendor fuera del paquete `adapters/`.
-- Adapter de llama.cpp (HTTP o bindings) como segundo backend, para validar que el puerto aguanta local.
+**Objetivo:** jugar de verdad. Quizá sin seed ni mundo precargado: el modelo inventa al arrancar. Lo que importa es coherencia, estado en disco y reanudar.
 
-**Listo cuando:** cambiar `provider=openai` por `provider=llamacpp` (o gemini) no toca el bucle. El JSON inválido no corrompe SQLite.
+- Una base = una partida (SQLite + JSON libre). Tras cada interacción exitosa, el estado queda escrito. No hay botón de guardar.
+- Reanudar: abrir el archivo, seguir. El histórico de prosa es opcional (para mostrar chat); la partida vive en entidades y hechos.
+- Coherencia en 20–30 turnos: slugs, mapa libre en entidades, el LLM como fuente de verdad narrativa; el núcleo es registro consultable.
+- CLI agnóstica: solo texto libre. Si falla la API o el JSON, se informa; el usuario reintenta o cierra.
+- Sin comandos `/state` ni `/save` para el jugador. Debug solo en desarrollo.
 
-## Fase 3 — Juego directo usable
+**Listo cuando:** se cierra el proceso, se vuelve a abrir la misma partida, y el mundo (y si aplica el chat) sigue donde quedó, sin seed de autor.
 
-**Objetivo:** CoreTales se usa sin escribir triggers. Prompt de sistema + estado bastan.
+## Fase 4 — Abierta (alfa)
 
-- Prompt de sistema estable: rol de director, obligación de JSON, respeto al estado recibido.
-- Seed de mundo: un prompt o un JSON inicial (lugar, PC, un NPC).
-- Salida narrativa en consola; el JSON crudo no se muestra salvo modo debug.
-- Generación de variables nuevas con validación mínima (nombre, tipo, valor).
+**Objetivo:** partidas precreadas y lo que pida el uso real. No se cierra el diseño aquí: evoluciona con los primeros alpha users.
 
-**Listo cuando:** una sesión de 20–30 turnos en un género cualquiera se siente coherente al reanudar, sin autoría extra.
+Candidatos, no promesa:
 
-## Fase 4 — Triggers y eventos
+- Seed: prompt de mundo + datos que pueblan la base (NPCs, lugares, eventos pasados).
+- Triggers como datos JSON (predicados simples, una vez). Solo si hacen falta; la versión jugable puede no traerlos.
+- Más adapters (llama.cpp, otro provider) cuando alguien los necesite.
+- Paso del tiempo, variables de entorno, formato empaquetado para distribuir aventuras.
+- Lo que la alfa demuestre que falta (y lo que sobre).
 
-**Objetivo:** orquestar sin fork del motor.
-
-- Modelo de datos: evento (hecho) vs trigger (regla: cuando / entonces).
-- Momentos del bucle: `before_infer`, `after_commit` (y solo esos, al inicio).
-- Acciones de trigger mínimas: inyectar contexto, fijar escena, vetar acción, encolar evento, cambiar flag, elegir prompt/plantilla.
-- Definición en datos (JSON/YAML) más que en Python. Hooks en código como escape, no como camino por defecto.
-- Triggers vacíos = comportamiento de Fase 3.
-
-**Listo cuando:** un autor describe “si el jugador entra en la taberna, forzar escena X” en un archivo, sin parchear el núcleo, y el uso directo sigue igual.
-
-## Fase 5 — Orquestación de historia
-
-**Objetivo:** generación dirigida de un arco, no solo ganchos sueltos.
-
-- Escenas o beats: un trigger puede activar un beat y desactivar otros.
-- Presupuestos de generación: el adapter recibe restricciones extra (debe mencionar Y, no puede matar a Z, el tono es W).
-- Cadenas: `after_commit` dispara el siguiente beat.
-- Herramienta mínima de autor: validar el archivo de triggers, listar qué se dispararía dado un estado.
-
-**Listo cuando:** se puede contar un acto corto (llegada → conflicto → cierre) con triggers, y el LLM rellena el medio sin saltarse los beats.
-
-## Fase 6 — Dureza y operación
-
-**Objetivo:** que no se rompa al usarlo de verdad.
-
-- Tests del núcleo: deltas, contexto, triggers, persistencia. Sin llamar a APIs de pago.
-- Contrato del adapter: tests con JSON de ejemplo (válido, truncado, extra fields).
-- Límites: tamaño de contexto, recorte del log, no mandar el mundo entero al LLM.
-- Observabilidad mínima: log de turno (ids, proveedor, tokens si aplica, triggers disparados).
-
-**Listo cuando:** el núcleo se testea en CI; una partida larga no hincha el prompt sin control.
+**Listo cuando:** no aplica. Esta fase no tiene criterio de cierre; se revisa con partidas reales.
 
 ## Fuera de alcance (hasta que el núcleo esté aburrido de tan estable)
 
 - UI gráfica, web o motor de mapa 2D.
 - Multijugador.
-- Economía, combate o inventario como sistemas hardcodeados (pueden existir como datos + triggers).
-- Marketplace de aventuras, editor visual, plugin de terceros.
+- Economía, combate o inventario hardcodeados.
+- Editor visual, marketplace, plugins.
+- Suite de tests / CI. Se prueba al construir; tests son una decisión futura.
 - Un segundo lenguaje de runtime. Python basta.
 
 ## Dependencias entre fases
 
 ```
-0 contrato  →  1 núcleo  →  2 adapter LLM  →  3 juego directo
-                                    ↘
-                                      4 triggers  →  5 orquestación
-                                                    ↘
-                                                      6 dureza (puede solaparse desde 1)
+1 LLM + JSON          →  2 núcleo (el modelo consulta al sistema)
+                              →  3 partida (disco + reanudar)
+                                    →  4 abierta (seeds, triggers, alfa)
 ```
 
-Fase 6 no espera al final: tests del núcleo empiezan en Fase 1. Lo que sí espera es no diseñar un editor de aventuras antes de tener el puerto de LLM y dos triggers reales.
+No hay fase de adapter falso ni de persistencia antes de hablar con el modelo. El disco entra cuando el JSON y el bucle de consulta ya sirven. Las aventuras de autor no bloquean jugar.
