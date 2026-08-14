@@ -25,11 +25,21 @@ saves/          una SQLite = una partida (gitignorado)
 ```
 
 El LLM interpreta y secuencia; no arbitra. La etapa 1 valora el acto en ejes
-generales (intensidad, intimidad, agresión, exposición, afecto, dominio) e
+generales (intensidad, intimidad, agresión, exposición, afecto, dominio, reposo) e
 infiere el perfil de quien aparece. El motor lleva los ejes fijos de cada
 personaje (estado volátil, rasgos fijos, vínculos dirigidos), puntúa los
 impulsos y decide el desenlace: `ocurre`, `forcejeo`, `forzado` o `bloqueado`.
 Así un rival que te odia no cede porque el modelo quiera agradar.
+
+El mundo se lleva con cuatro primitivas generales, sin sistemas por género:
+
+- Presencia: cada entidad está en un lugar. Solo lo presente entra a la escena;
+  quien no fue objeto del acto se queda donde estaba cuando el jugador se mueve.
+- Existencia: `activo`, `muerto` o `ausente`. El que no está no reacciona, pero
+  su cuerpo puede seguir en el sitio.
+- Cosas: entidades `obj.` con dueño. El inventario es lo que tiene el jugador;
+  sin dueño, queda en el lugar.
+- Coste: actuar gasta energía y descansar la recupera, también en el jugador.
 
 Stdlib. El LLM es un periférico: OpenAI si hay `OPENAI_API_KEY` en `.env`, si no llama.cpp en `http://127.0.0.1:8080/v1`. `.env` solo secretos.
 

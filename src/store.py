@@ -16,9 +16,11 @@ from typing import Any
 import mente
 from catalog import catalog_empty, import_catalog
 from schema import (
+    EXISTENCIAS,
     MAX_EVENTOS,
     MAX_NUEVOS,
     MAX_TAGS,
+    MIGRACIONES,
     SAMPLE_FRASES,
     SCHEMA,
     SLUG_PREFIX,
@@ -30,6 +32,7 @@ DEFAULT_SAVE = ROOT / "saves" / "default.sqlite"
 _SLUG_REST = re.compile(r"^[a-z0-9_]+$")
 _USADAS_MAX = 24
 _MAX_OBJETIVOS = 2
+_TIPO_OBJETO = {"objeto", "cosa", "arma", "herramienta", "prenda", "libro"}
 _TIPO_ALIAS = {
     "provocadora": "provocador",
     "provocativo": "provocador",
@@ -86,6 +89,7 @@ class Store:
         self.conn.execute("PRAGMA foreign_keys = ON")
         self.conn.execute("PRAGMA journal_mode = WAL")
         self.conn.executescript(SCHEMA)
+        self._migrar()
         if catalog_empty(self.conn):
             import_catalog(self.conn)
         self._ensure_instance()
@@ -107,6 +111,24 @@ class Store:
 
     def rollback(self) -> None:
         self.conn.rollback()
+
+    def _migrar(self) -> None:
+        """Columnas nuevas sobre partidas viejas. SQLite no las añade solo."""
+        nuevas: set[str] = set()
+        for tabla, columnas in MIGRACIONES.items():
+            actuales = {
+                r[1] for r in self.conn.execute(f"PRAGMA table_info({tabla})")
+            }
+            for col, decl in columnas.items():
+                if col not in actuales:
+                    self.conn.execute(f"ALTER TABLE {tabla} ADD COLUMN {col} {decl}")
+                    nuevas.add(f"{tabla}.{col}")
+        if "entidades.lugar" in nuevas:
+            # sin esto, la gente de una partida vieja queda fuera de escena
+            self.conn.execute(
+                "UPDATE entidades SET lugar = (SELECT location FROM scene WHERE id = 1) "
+                "WHERE clase IN ('pc', 'npc') AND lugar IS NULL"
+            )
 
     def _ensure_instance(self) -> None:
         if self.conn.execute("SELECT 1 FROM scene WHERE id = 1").fetchone() is None:
@@ -157,12 +179,77 @@ class Store:
             )
         ]
 
-    def _insert_entity(self, slug: str, nombre: str, tipo: str | None) -> None:
+    def npcs_presentes(self) -> list[str]:
+        """Quién está acá y sigue existiendo. Nadie te sigue por arte de magia."""
+        loc = self.get_scene().get("location")
+        return [
+            r["slug"]
+            for r in self.conn.execute(
+                "SELECT slug FROM entidades WHERE clase = 'npc' "
+                "AND existe = 'activo' AND lugar IS ? ORDER BY slug",
+                (loc,),
+            )
+        ]
+
+    def inventario(self) -> list[dict[str, Any]]:
+        pc = self.get_scene().get("pc")
+        if not pc:
+            return []
+        return [
+            dict(r)
+            for r in self.conn.execute(
+                "SELECT nombre, cantidad FROM entidades WHERE clase = 'obj' "
+                "AND existe = 'activo' AND dueno = ? ORDER BY slug",
+                (pc,),
+            )
+        ]
+
+    def cosas_del_lugar(self) -> list[dict[str, Any]]:
+        loc = self.get_scene().get("location")
+        return [
+            dict(r)
+            for r in self.conn.execute(
+                "SELECT nombre, cantidad FROM entidades WHERE clase = 'obj' "
+                "AND existe = 'activo' AND dueno IS NULL AND lugar IS ? ORDER BY slug",
+                (loc,),
+            )
+        ]
+
+    def fuera_de_escena(self) -> list[str]:
+        """Lo que el modelo debe recordar pero no puede usar como presente."""
+        loc = self.get_scene().get("location")
+        out = []
+        for r in self.conn.execute(
+            "SELECT nombre, existe, lugar FROM entidades WHERE clase = 'npc' "
+            "AND (existe != 'activo' OR lugar IS NOT ?) ORDER BY slug",
+            (loc,),
+        ):
+            if r["existe"] == "activo":
+                donde = "en otro sitio"
+            elif r["lugar"] == loc:
+                # el cuerpo sigue acá; el personaje no vuelve
+                donde = f"{r['existe']}, acá"
+            else:
+                donde = f"{r['existe']}, en otro sitio"
+            out.append(f"{r['nombre']} ({donde})")
+        return out
+
+    def _insert_entity(
+        self,
+        slug: str,
+        nombre: str,
+        tipo: str | None,
+        lugar: str | None = None,
+        dueno: str | None = None,
+        cantidad: int = 1,
+    ) -> None:
         clase = slug.split(".", 1)[0]
         self.conn.execute(
             """
-            INSERT INTO entidades (slug, clase, nombre, tipo_personaje, tipo_lugar)
-            VALUES (?, ?, ?, ?, ?)
+            INSERT INTO entidades
+                (slug, clase, nombre, tipo_personaje, tipo_lugar,
+                 lugar, dueno, cantidad)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 slug,
@@ -170,6 +257,9 @@ class Store:
                 nombre,
                 tipo if clase in ("pc", "npc") else None,
                 tipo if clase == "loc" else None,
+                None if clase == "loc" or dueno else lugar,
+                dueno,
+                max(1, cantidad),
             ),
         )
         if clase in ("pc", "npc"):
@@ -287,13 +377,14 @@ class Store:
         pc_slug = scene.get("pc")
         loc = self._entity(scene.get("location"))
         npcs = []
-        for slug in self.npcs():
+        for slug in self.npcs_presentes():
             ent = self._entity(slug) or {}
             npcs.append(
                 {
                     "slug": slug,
                     "nombre": ent.get("nombre"),
                     "tipo": ent.get("tipo_personaje"),
+                    "cantidad": ent.get("cantidad") or 1,
                     "estado": mente.resumen_estado(self._estado(slug)),
                     "siente_por_ti": mente.resumen_vinculo(
                         self._vinculo(slug, pc_slug)
@@ -308,11 +399,15 @@ class Store:
                 "lugar": loc["nombre"] if loc else None,
                 "lugar_slug": scene.get("location"),
                 "tipo_lugar": loc["tipo_lugar"] if loc else None,
-                "atmosfera": scene.get("atmosfera"),
-                "tropo": scene.get("tropo"),
                 "turno": scene.get("time_value"),
             },
-            "npcs": npcs,
+            "tu_estado": mente.resumen_estado(self._estado(pc_slug))
+            if pc_slug
+            else "",
+            "npcs_presentes": npcs,
+            "llevas": self.inventario(),
+            "cosas_del_lugar": self.cosas_del_lugar(),
+            "fuera_de_escena": self.fuera_de_escena(),
             "foco": self._meta_json("foco", ""),
             "ultimo_acto": (self.last_intent or {}).get("acto") or "",
             "hechos": self.hechos(),
@@ -321,9 +416,13 @@ class Store:
             f"Acción del jugador:\n{player}\n\n"
             f"Estado actual:\n{json.dumps(state, ensure_ascii=False, indent=2)}\n\n"
             "Devolvé el JSON de intención de este turno.\n"
+            "Solo existe lo que está en el estado: si el jugador nombra algo que "
+            "no está (una espada, un sitio, alguien), va en nuevos.\n"
+            "Lo que está en fuera_de_escena no puede actuar: no lo pongas en objetivos.\n"
             "tipos_personaje útiles: companera, jefe, provocador, amante, rival, "
             "subalterno, ciudadano, heroe.\n"
-            "tipos_lugar útiles: oficina, despacho, cubiculo, pasillo, calle.\n"
+            "tipos_lugar útiles: oficina, despacho, cubiculo, pasillo, calle, "
+            "bosque, campo, camino.\n"
             "atmosferas útiles: laboral, erotica, tensa, hostil, violenta, oscura, "
             "humillante, fria.\n"
             "tropos útiles: roce, seduccion, exhibicion, mirada, rivalidad, "
@@ -335,22 +434,29 @@ class Store:
     def apply_intent(
         self, intent: dict[str, Any], player: str = ""
     ) -> list[dict[str, Any]]:
+        self._ensure_pc()
+        origen = self.get_scene().get("location")
+        movimiento = _bool(intent.get("movimiento"))
+        self._apply_lugar(intent.get("lugar"), movimiento)
+        # quien nace, nace donde está el jugador ahora
         self._apply_nuevos(intent.get("nuevos"))
         self._spawn_from_tokens(intent.get("objetivos"))
-        self._ensure_pc()
-        self._apply_lugar(intent.get("lugar"), _bool(intent.get("movimiento")))
+        if movimiento:
+            self._mover_acompanantes(intent.get("objetivos"), origen)
         self._reposo_general()
 
         val = mente.valoracion(intent.get("valoracion"))
         objetivos = self._objetivos_npc(intent.get("objetivos"), intent.get("nuevos"))
         resoluciones = [self._resolver_npc(slug, val) for slug in objetivos]
         self.last_resolucion = resoluciones
+        self._impacto_actor(val)
+        self._aplicar_fuera(intent.get("fuera"))
 
         if self._acto_pasa(resoluciones):
             self._apply_tags(intent.get("tags"), objetivos)
         self._apply_anchor("atmosfera", intent.get("atmosfera"), "atmosferas")
         self._apply_anchor("tropo", intent.get("tropo"), "tropos")
-        self._derivar_tono(objetivos, resoluciones)
+        self._derivar_tono(objetivos, resoluciones, val)
         self._anotar_eventos(intent, resoluciones)
 
         if objetivos:
@@ -374,10 +480,64 @@ class Store:
         return any(r["desenlace"] in ("ocurre", "forzado") for r in resoluciones)
 
     def _reposo_general(self) -> None:
-        for slug in [*self.npcs(), self.get_scene().get("pc")]:
+        activos = [
+            r["slug"]
+            for r in self.conn.execute(
+                "SELECT slug FROM entidades WHERE clase = 'npc' AND existe = 'activo'"
+            )
+        ]
+        for slug in [*activos, self.get_scene().get("pc")]:
             if not slug:
                 continue
             self._guardar_estado(slug, mente.reposo(self._estado(slug)))
+
+    def _impacto_actor(self, val: dict[str, float]) -> None:
+        """Actuar cansa; descansar recupera. El jugador también tiene cuerpo."""
+        pc = self.get_scene().get("pc")
+        if pc:
+            self._sumar_estado(pc, mente.coste_actor(val))
+
+    def _aplicar_fuera(self, fuera: Any) -> None:
+        """Quien muere o se va deja de estar. El motor no lo resucita solo."""
+        if not isinstance(fuera, list):
+            return
+        turno = self.get_scene().get("time_value") or 0
+        for item in fuera:
+            if isinstance(item, str):
+                item = {"slug": item, "existe": "ausente"}
+            if not isinstance(item, dict) or not isinstance(item.get("slug"), str):
+                continue
+            slug = self._resolve_objetivo(item["slug"])
+            if not slug or slug.startswith("pc."):
+                continue
+            existe = _ascii_slug(str(item.get("existe") or "ausente"))
+            if existe not in EXISTENCIAS:
+                existe = "ausente"
+            self.conn.execute(
+                "UPDATE entidades SET existe = ? WHERE slug = ?", (existe, slug)
+            )
+            ent = self._entity(slug) or {}
+            self.conn.execute(
+                "INSERT INTO eventos (turno, slug, texto) VALUES (?, ?, ?)",
+                (turno, slug, f"queda {existe} ({ent.get('nombre') or slug})"),
+            )
+
+    def _mover_acompanantes(self, objetivos: Any, origen: str | None) -> None:
+        """Solo viene con vos quien es objeto del acto; el resto se queda."""
+        destino = self.get_scene().get("location")
+        if not destino or destino == origen:
+            return
+        for token in objetivos if isinstance(objetivos, list) else []:
+            if not isinstance(token, str):
+                continue
+            slug = self._resolve_objetivo(token)
+            if not slug or not slug.startswith("npc."):
+                continue
+            ent = self._entity(slug) or {}
+            if ent.get("existe") == "activo" and ent.get("lugar") == origen:
+                self.conn.execute(
+                    "UPDATE entidades SET lugar = ? WHERE slug = ?", (destino, slug)
+                )
 
     def _resolver_npc(self, slug: str, val: dict[str, float]) -> dict[str, Any]:
         pc = self.get_scene().get("pc") or "pc.jugador"
@@ -411,12 +571,14 @@ class Store:
         return res
 
     def _objetivos_npc(self, objetivos: Any, nuevos: Any) -> list[str]:
+        """Sin objetivo no hay nadie: mirar el inventario no le pasa a un NPC."""
+        presentes = set(self.npcs_presentes())
         slugs: list[str] = []
         for token in objetivos if isinstance(objetivos, list) else []:
             if not isinstance(token, str):
                 continue
             found = self._resolve_objetivo(token)
-            if found and found.startswith("npc.") and found not in slugs:
+            if found in presentes and found not in slugs:
                 slugs.append(found)
         if not slugs:
             # aparecer en escena no es recibir el acto: solo se usan si no hay objetivo
@@ -424,13 +586,8 @@ class Store:
                 if not isinstance(item, dict) or not isinstance(item.get("slug"), str):
                     continue
                 slug = _normalize_slug(item["slug"])
-                if slug and slug.startswith("npc.") and self._entity(slug):
-                    if slug not in slugs:
-                        slugs.append(slug)
-        if not slugs:
-            foco = self._meta_json("foco", "")
-            if isinstance(foco, str) and foco.startswith("npc.") and self._entity(foco):
-                slugs.append(foco)
+                if slug in presentes and slug not in slugs:
+                    slugs.append(slug)
         return slugs[:_MAX_OBJETIVOS]
 
     def _resolve_objetivo(self, token: str) -> str | None:
@@ -467,13 +624,18 @@ class Store:
                 continue
             tipo = item.get("tipo") if isinstance(item.get("tipo"), str) else ""
             tipo = _TIPO_ALIAS.get(_ascii_slug(tipo), _ascii_slug(tipo)) if tipo else ""
-            prefix = "loc" if tipo and self._exists_id("tipos_lugar", tipo) else "npc"
+            if tipo and self._exists_id("tipos_lugar", tipo):
+                prefix = "loc"
+            elif tipo in _TIPO_OBJETO or item.get("dueno"):
+                prefix = "obj"
+            else:
+                prefix = "npc"
             slug = _normalize_slug(item["slug"], default_prefix=prefix)
             if not slug or self._entity(slug):
                 continue
             clase = slug.split(".", 1)[0]
             rest = slug.split(".", 1)[1]
-            if clase == "loc":
+            if clase in ("loc", "obj"):
                 if tipo and not self._exists_id("tipos_lugar", tipo):
                     tipo = ""
             elif not tipo or not self._exists_id("tipos_personaje", tipo):
@@ -485,7 +647,18 @@ class Store:
             nombre = item.get("nombre")
             if not isinstance(nombre, str) or not nombre.strip():
                 nombre = rest.replace("_", " ").title()
-            self._insert_entity(slug, nombre.strip(), tipo or None)
+            dueno = None
+            if clase == "obj":
+                dueno = self._resolve_dueno(item.get("dueno"))
+            cantidad = item.get("cantidad")
+            self._insert_entity(
+                slug,
+                nombre.strip(),
+                tipo or None,
+                lugar=self.get_scene().get("location"),
+                dueno=dueno,
+                cantidad=cantidad if isinstance(cantidad, int) else 1,
+            )
             created += 1
             if clase in ("pc", "npc"):
                 altas.append((slug, item))
@@ -506,6 +679,15 @@ class Store:
             base = mente.vinculo_base()
             base.update(vinculo)
             self._guardar_vinculo(slug, pc, base)
+
+    def _resolve_dueno(self, raw: Any) -> str | None:
+        """Una cosa sin dueño es decorado; con dueño, es inventario."""
+        if not isinstance(raw, str) or not raw.strip():
+            return None
+        slug = self._resolve_objetivo(raw)
+        if slug and (slug.startswith("pc.") or slug.startswith("npc.")):
+            return slug
+        return None
 
     def _ensure_pc(self) -> None:
         scene = self.get_scene()
@@ -534,9 +716,16 @@ class Store:
             rest = slug.split(".", 1)[1]
             if slug.startswith("loc."):
                 tipo = rest if self._exists_id("tipos_lugar", rest) else None
+            elif slug.startswith("obj."):
+                tipo = None
             else:
                 tipo = rest if self._exists_id("tipos_personaje", rest) else None
-            self._insert_entity(slug, rest.replace("_", " ").title(), tipo)
+            self._insert_entity(
+                slug,
+                rest.replace("_", " ").title(),
+                tipo,
+                lugar=self.get_scene().get("location"),
+            )
             created += 1
 
     def _apply_lugar(self, lugar: Any, movimiento: bool) -> None:
@@ -568,8 +757,15 @@ class Store:
             self.conn.execute(
                 "UPDATE entidades SET tipo_lugar = ? WHERE slug = ?", (tipo, slug)
             )
-        if not self.get_scene().get("location") or movimiento:
-            self._set_scene(location=slug)
+        scene = self.get_scene()
+        if slug != scene.get("location") and (not scene.get("location") or movimiento):
+            # otro sitio, otra escena: el tono no viaja con el jugador
+            self._set_scene(location=slug, atmosfera=None, tropo=None)
+            if scene.get("pc"):
+                self.conn.execute(
+                    "UPDATE entidades SET lugar = ? WHERE slug = ?",
+                    (slug, scene["pc"]),
+                )
 
     # --- tono y tags ---
 
@@ -581,7 +777,10 @@ class Store:
             self._set_scene(**{field: ident})
 
     def _derivar_tono(
-        self, objetivos: list[str], resoluciones: list[dict[str, Any]]
+        self,
+        objetivos: list[str],
+        resoluciones: list[dict[str, Any]],
+        val: dict[str, float],
     ) -> None:
         """La atmósfera sigue lo que pasó, no el gusto del modelo."""
         atmo_cand: tuple[str, ...] = ()
@@ -608,6 +807,12 @@ class Store:
                     mejor = (eje, desvio)
             if mejor[0] and mejor[1] >= 0.15:
                 atmo_cand, tropo_cand = mente.TONO_ESTADO.get(mejor[0], ((), ()))
+        if not atmo_cand and not resoluciones:
+            # nadie recibió el acto: manda el acto, no la escena anterior
+            for eje, umbral, atmos, tropos in mente.TONO_VALORACION:
+                if val.get(eje, 0.0) >= umbral:
+                    atmo_cand, tropo_cand = atmos, tropos
+                    break
         atmo = self._primero_que_exista("atmosferas", atmo_cand)
         tropo = self._primero_que_exista("tropos", tropo_cand)
         if atmo:
@@ -673,9 +878,11 @@ class Store:
         """Hechos vigentes, derivados del estado. No es un historial que se pudra."""
         out: list[str] = []
         pc = self.get_scene().get("pc")
-        for slug in self.npcs():
+        for slug in self.npcs_presentes():
             ent = self._entity(slug) or {}
             nombre = ent.get("nombre") or slug
+            if (ent.get("cantidad") or 1) > 1:
+                nombre = f"{nombre} (x{ent['cantidad']})"
             tags = self._tags_of(slug)
             if tags:
                 out.append(f"{nombre}: {', '.join(tags)}.")
@@ -735,8 +942,10 @@ class Store:
             if fam:
                 out.append(("cruce", f"{loc['tipo_lugar']}+{fam}"))
         for row in self.conn.execute(
-            "SELECT tipo_personaje FROM entidades "
-            "WHERE clase = 'npc' AND tipo_personaje IS NOT NULL"
+            "SELECT DISTINCT tipo_personaje FROM entidades "
+            "WHERE clase = 'npc' AND existe = 'activo' AND lugar IS ? "
+            "AND tipo_personaje IS NOT NULL",
+            (scene.get("location"),),
         ):
             out.append(("tipo_personaje", row["tipo_personaje"]))
         if not out:
@@ -791,13 +1000,14 @@ class Store:
         resoluciones = self.last_resolucion
         implicados = {r["slug"] for r in resoluciones}
         otros = []
-        for slug in self.npcs():
+        for slug in self.npcs_presentes():
             if slug in implicados:
                 continue
             ent = self._entity(slug) or {}
             otros.append(
                 {
                     "nombre": ent.get("nombre"),
+                    "cantidad": ent.get("cantidad") or 1,
                     "estado": mente.resumen_estado(self._estado(slug)),
                     "tags": self._tags_of(slug),
                 }
@@ -828,11 +1038,23 @@ class Store:
                 )
         if not prohibido:
             prohibido.append("Nada que contradiga el canon de arriba.")
+        ausentes = self.fuera_de_escena()
+        if ausentes:
+            prohibido.append(
+                "No están acá (no pueden hablar ni actuar): " + ", ".join(ausentes) + "."
+            )
         pack = {
-            "tu": {"nombre": pc["nombre"] if pc else "Jugador"},
+            "tu": {
+                "nombre": pc["nombre"] if pc else "Jugador",
+                "estado": mente.resumen_estado(self._estado(scene.get("pc")))
+                if scene.get("pc")
+                else "",
+                "llevas": self.inventario(),
+            },
             "lugar": {
                 "nombre": loc["nombre"] if loc else None,
                 "tipo": loc["tipo_lugar"] if loc else None,
+                "cosas": self.cosas_del_lugar(),
             },
             "atmosfera": scene.get("atmosfera"),
             "tropo": scene.get("tropo"),

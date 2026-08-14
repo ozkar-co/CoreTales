@@ -34,7 +34,15 @@ RASGOS = (
 # Dirigido: lo que A siente por B.
 VINCULO = ("afecto", "odio", "respeto", "miedo", "deseo")
 # Lo único que la etapa 1 dice del acto. Dimensiones, no verbos.
-VALORACION = ("intensidad", "intimidad", "agresion", "exposicion", "afecto", "dominio")
+VALORACION = (
+    "intensidad",
+    "intimidad",
+    "agresion",
+    "exposicion",
+    "afecto",
+    "dominio",
+    "reposo",
+)
 
 ESTADO_BASE = {
     "excitacion": 0.10,
@@ -97,6 +105,15 @@ TONO_ESTADO = {
     "confianza": ((), ()),
     "energia": ((), ()),
 }
+# Cuando el acto no le pasa a nadie, el tono sale del acto mismo.
+TONO_VALORACION = (
+    ("agresion", 0.45, ("violenta", "hostil"), ("pelea", "forcejeo")),
+    ("intimidad", 0.45, ("erotica", "intima"), ("seduccion", "roce")),
+    ("exposicion", 0.45, ("humillante", "tensa"), ("humillacion", "exhibicion")),
+    ("reposo", 0.70, ("letargica", "calida"), ("cotidiano", "rutina")),
+    ("afecto", 0.45, ("calida", "intima"), ("ternura", "cotidiano")),
+    ("intensidad", 0.60, ("urgente", "tensa"), ("cotidiano", "rutina")),
+)
 TONO_DESENLACE = {
     "forcejeo": (("violenta", "hostil"), ("forcejeo", "pelea")),
     "forzado": (("violenta", "hostil"), ("forcejeo", "pelea")),
@@ -403,6 +420,18 @@ def secuela(res: dict[str, Any], val: dict[str, float]) -> tuple[
     if res["impulso"] == "agredir":
         de["energia"] -= 0.10
     return de, dv
+
+
+def coste_actor(val: dict[str, float]) -> dict[str, float]:
+    """Lo que el acto le cuesta a quien lo hace. Descansar es el acto inverso."""
+    rep = val["reposo"]
+    esfuerzo = val["intensidad"] * (1.0 - rep)
+    return {
+        "energia": 0.40 * rep - 0.12 * esfuerzo,
+        "estres": 0.10 * esfuerzo - 0.30 * rep,
+        "dolor": -0.20 * rep,
+        "excitacion": -0.15 * rep,
+    }
 
 
 def reposo(estado: dict[str, float]) -> dict[str, float]:

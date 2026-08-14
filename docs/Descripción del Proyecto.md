@@ -34,7 +34,7 @@ jugador → [1. traducir] → JSON (intención, entidades, valoración del acto)
          → [2. narrar] → prosa
 ```
 
-1. **Traducción (input).** El jugador escribe cualquier cosa. El LLM **no narra** y no decide qué pasa. Devuelve un JSON chico: acto, entidades afectadas, **valoración** del acto en ejes generales (intensidad, intimidad, agresión, exposición, afecto, dominio), tags nuevas y, para quien aparece por primera vez, el perfil que se pueda inferir del texto. Schema estricto. Si el JSON falla: un reintento; si otra vez, se informa y el turno no escribe.
+1. **Traducción (input).** El jugador escribe cualquier cosa. El LLM **no narra** y no decide qué pasa. Devuelve un JSON chico: acto, entidades afectadas, **valoración** del acto en ejes generales (intensidad, intimidad, agresión, exposición, afecto, dominio, reposo), tags nuevas, quién deja de estar (muerto o ausente) y, para quien o lo que aparece por primera vez, el perfil o el dueño que se pueda inferir del texto. Schema estricto. Si el JSON falla: un reintento; si otra vez, se informa y el turno no escribe.
 
 2. **Resolución.** El motor traduce esa valoración a movimiento de ejes según el vínculo (el mismo acto agrada o repugna según quién lo recibe), puntúa los impulsos posibles, elige el que gana y decide si el acto se completa. Apila tags, actualiza vectores de género, puede avanzar un beat, elige máscara y átomos. Copia de trabajo; commit al cerrar con éxito.
 
@@ -58,6 +58,17 @@ Los ejes son fijos y generales (los define `src/mente.py`), pensados para servir
 El motor puntúa siete impulsos (ceder, dominar, hablar, rechazar, agredir, huir, congelarse) y gana el más alto: una sola regla general en vez de un caso por situación. Después decide el desenlace del acto: `ocurre`, `forcejeo`, `forzado` o `bloqueado`. Solo un acto sobre el cuerpo se puede frenar; hablar o irse no se bloquean.
 
 Escena del motor: `pc`, `location`, `time` (value / unit / label). Quién, dónde y cuándo no los improvisa la prosa.
+
+### Mundo: presencia, existencia y cosas
+
+Mismas cuatro primitivas para cualquier ambientación; no hay un sistema para novela y otro para aventura. La diferencia entre una oficina y un bosque es el catálogo, no el motor.
+
+- **Presencia.** Toda entidad está en un lugar. La escena solo ve lo presente. Al moverse, acompaña quien fue objeto del acto ("la llevo al despacho"); el resto queda donde estaba.
+- **Existencia.** `activo`, `muerto`, `ausente`. Lo declara la etapa 1 porque es interpretación del texto ("luego de matar a los gnomos"). El que no está activo no reacciona ni recibe actos, pero su cuerpo puede seguir en el sitio.
+- **Cosas.** Entidades `obj.` con dueño opcional. Con dueño, es inventario y viaja con él; sin dueño, queda en el lugar. Nada de tablas nuevas ni estadísticas de objeto.
+- **Coste.** El acto gasta al que lo hace (energía, estrés) y `reposo` lo devuelve. El PC también tiene estado: cansarse es parte del mundo, no una regla de RPG.
+
+Un mapa con direcciones, rondas de combate o pesos de inventario serían reglas opcionales sobre estas mismas tablas, elegidas por partida. No hacen falta para que el bosque funcione.
 
 ### Memoria
 

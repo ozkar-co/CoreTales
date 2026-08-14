@@ -28,6 +28,7 @@ INTENT_SCHEMA: dict[str, Any] = {
             "exposicion",
             "afecto",
             "dominio",
+            "reposo",
         ),
         "tags": {"type": "array", "items": {"type": "string"}},
         "nuevos": {
@@ -38,6 +39,8 @@ INTENT_SCHEMA: dict[str, Any] = {
                     "slug": {"type": "string"},
                     "nombre": {"type": "string"},
                     "tipo": {"type": "string"},
+                    "dueno": {"type": "string"},
+                    "cantidad": {"type": "integer", "minimum": 1},
                     "rasgos": _ejes(
                         "valentia",
                         "dominancia",
@@ -61,6 +64,17 @@ INTENT_SCHEMA: dict[str, Any] = {
                     "vinculo": _ejes("afecto", "odio", "respeto", "miedo", "deseo"),
                 },
                 "required": ["slug"],
+            },
+        },
+        "fuera": {
+            "type": "array",
+            "items": {
+                "type": "object",
+                "properties": {
+                    "slug": {"type": "string"},
+                    "existe": {"type": "string", "enum": ["muerto", "ausente", "activo"]},
+                },
+                "required": ["slug", "existe"],
             },
         },
         "atmosfera": {"type": "string"},

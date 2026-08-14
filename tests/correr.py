@@ -141,6 +141,17 @@ def correr(path: Path, seco: bool, llm) -> Path:
             f"escena: lugar `{scene.get('location')}` | atmósfera "
             f"`{scene.get('atmosfera')}` | tropo `{scene.get('tropo')}`"
         )
+        presentes = [
+            (store._entity(s) or {}).get("nombre") or s for s in store.npcs_presentes()
+        ]
+        llevas = [f"{o['nombre']} x{o['cantidad']}" for o in store.inventario()]
+        lineas.append(
+            f"presentes: {', '.join(presentes) or 'nadie'} | "
+            f"llevas: {', '.join(llevas) or 'nada'}"
+        )
+        fuera = store.fuera_de_escena()
+        if fuera:
+            lineas.append(f"fuera de escena: {', '.join(fuera)}")
         lineas.append("")
         lineas.append("<details><summary>paquete de la etapa 2</summary>")
         lineas.append("")

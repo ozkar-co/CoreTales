@@ -1,19 +1,22 @@
-# titulo: Bosque y gnomos - que le falta al motor fuera de la novela
-# No es una escena de relaciones: es la sonda para ver que NO existe todavia.
-# Se busca ver como maneja: varios NPCs iguales, objetos que el jugador lleva,
-# muerte, paso del tiempo (descansar), y que al moverse el decorado local cambie
-# (los cadaveres no siguen al jugador).
+# titulo: Bosque y gnomos - mundo, cosas y muerte
+# No es una escena de relaciones. Prueba las primitivas generales:
+# presencia por lugar, existencia (muerto/ausente), cosas con dueño (inventario)
+# y coste del acto en el jugador (pelear cansa, descansar recupera).
+# Lo que hay que mirar en el log: los gnomos no siguen al jugador fuera del bosque,
+# los muertos no reaccionan, mirar el inventario no le pasa a ningún NPC.
 > Estoy en un bosque frente a 5 gnomos, golpeo con mi espada a uno de ellos.
-= {"acto":"golpear","objetivos":["npc.gnomo_1"],"movimiento":false,"lugar":"loc.bosque","valoracion":{"intensidad":0.8,"intimidad":0.2,"agresion":0.9,"exposicion":0.5,"afecto":0.0,"dominio":0.7},"tags":[],"nuevos":[{"slug":"loc.bosque","nombre":"Bosque","tipo":"bosque"},{"slug":"npc.gnomo_1","nombre":"Gnomo 1","tipo":"antagonista","rasgos":{"fuerza":0.3,"valentia":0.5},"vinculo":{"odio":0.5,"afecto":0.0}},{"slug":"npc.gnomo_2","nombre":"Gnomo 2","tipo":"antagonista","vinculo":{"odio":0.5}},{"slug":"npc.gnomo_3","nombre":"Gnomo 3","tipo":"antagonista","vinculo":{"odio":0.5}},{"slug":"npc.gnomo_4","nombre":"Gnomo 4","tipo":"antagonista","vinculo":{"odio":0.5}},{"slug":"npc.gnomo_5","nombre":"Gnomo 5","tipo":"antagonista","vinculo":{"odio":0.5}}],"atmosfera":"violenta","tropo":"pelea"}
+= {"acto":"golpear","objetivos":["npc.gnomo"],"movimiento":false,"lugar":"loc.bosque","valoracion":{"intensidad":0.8,"intimidad":0.3,"agresion":0.9,"exposicion":0.4,"afecto":0.0,"dominio":0.7,"reposo":0.0},"tags":["herido"],"nuevos":[{"slug":"loc.bosque","nombre":"Bosque","tipo":"bosque"},{"slug":"npc.gnomo","nombre":"Gnomos","tipo":"antagonista","cantidad":5,"rasgos":{"fuerza":0.3,"valentia":0.45,"impulsividad":0.6},"vinculo":{"odio":0.5,"afecto":0.0}},{"slug":"obj.espada","nombre":"Espada","tipo":"arma","dueno":"pc.jugador"}],"atmosfera":"violenta","tropo":"pelea"}
 > Luego de matar a los gnomos con un poderoso hechizo necesito descansar.
-= {"acto":"lanzar_hechizo","objetivos":["npc.gnomo_1","npc.gnomo_2","npc.gnomo_3","npc.gnomo_4","npc.gnomo_5"],"movimiento":false,"lugar":"loc.bosque","valoracion":{"intensidad":1.0,"intimidad":0.1,"agresion":1.0,"exposicion":0.5,"afecto":0.0,"dominio":1.0},"tags":["muerto"],"nuevos":[],"atmosfera":"violenta","tropo":"pelea"}
+= {"acto":"lanzar_hechizo","objetivos":["npc.gnomo"],"movimiento":false,"lugar":"loc.bosque","valoracion":{"intensidad":1.0,"intimidad":0.2,"agresion":1.0,"exposicion":0.4,"afecto":0.0,"dominio":1.0,"reposo":0.0},"tags":[],"nuevos":[],"fuera":[{"slug":"npc.gnomo","existe":"muerto"}],"atmosfera":"violenta","tropo":"pelea"}
+> Me siento contra un árbol y descanso hasta recuperar el aliento.
+= {"acto":"descansar","objetivos":[],"movimiento":false,"lugar":"loc.bosque","valoracion":{"intensidad":0.1,"intimidad":0.0,"agresion":0.0,"exposicion":0.0,"afecto":0.0,"dominio":0.0,"reposo":0.9},"tags":[],"nuevos":[],"atmosfera":"sombria","tropo":"cotidiano"}
 > Miro a mi alrededor.
-= {"acto":"observar","objetivos":["loc.bosque"],"movimiento":false,"lugar":"loc.bosque","valoracion":{"intensidad":0.1,"intimidad":0.0,"agresion":0.0,"exposicion":0.0,"afecto":0.0,"dominio":0.0},"tags":[],"nuevos":[],"atmosfera":"sombria","tropo":"cotidiano"}
+= {"acto":"observar","objetivos":["loc.bosque"],"movimiento":false,"lugar":"loc.bosque","valoracion":{"intensidad":0.1,"intimidad":0.0,"agresion":0.0,"exposicion":0.0,"afecto":0.0,"dominio":0.0,"reposo":0.2},"tags":[],"nuevos":[],"atmosfera":"sombria","tropo":"cotidiano"}
 > Me adentro en el bosque.
-= {"acto":"ir","objetivos":["loc.bosque_profundo"],"movimiento":true,"lugar":"loc.bosque_profundo","valoracion":{"intensidad":0.2,"intimidad":0.0,"agresion":0.0,"exposicion":0.0,"afecto":0.0,"dominio":0.1},"tags":[],"nuevos":[{"slug":"loc.bosque_profundo","nombre":"Bosque profundo","tipo":"bosque"}],"atmosfera":"oscura","tropo":"cotidiano"}
+= {"acto":"ir","objetivos":["loc.espesura"],"movimiento":true,"lugar":"loc.espesura","valoracion":{"intensidad":0.3,"intimidad":0.0,"agresion":0.0,"exposicion":0.0,"afecto":0.0,"dominio":0.1,"reposo":0.0},"tags":[],"nuevos":[{"slug":"loc.espesura","nombre":"Espesura","tipo":"bosque"}],"atmosfera":"oscura","tropo":"cotidiano"}
 > Me dirijo al norte, uso mi brujula para ubicarme.
-= {"acto":"ir","objetivos":["loc.bosque_profundo"],"movimiento":true,"lugar":"loc.bosque_profundo","valoracion":{"intensidad":0.2,"intimidad":0.0,"agresion":0.0,"exposicion":0.0,"afecto":0.0,"dominio":0.1},"tags":[],"nuevos":[],"atmosfera":"oscura","tropo":"cotidiano"}
+= {"acto":"ir","objetivos":["loc.espesura"],"movimiento":false,"lugar":"loc.espesura","valoracion":{"intensidad":0.3,"intimidad":0.0,"agresion":0.0,"exposicion":0.0,"afecto":0.0,"dominio":0.1,"reposo":0.0},"tags":[],"nuevos":[{"slug":"obj.brujula","nombre":"Brujula","tipo":"herramienta","dueno":"pc.jugador"}],"atmosfera":"oscura","tropo":"cotidiano"}
 > Miro mi inventario.
-= {"acto":"revisar","objetivos":[],"movimiento":false,"lugar":"loc.bosque_profundo","valoracion":{"intensidad":0.1,"intimidad":0.0,"agresion":0.0,"exposicion":0.0,"afecto":0.0,"dominio":0.0},"tags":[],"nuevos":[],"atmosfera":"oscura","tropo":"cotidiano"}
+= {"acto":"revisar","objetivos":[],"movimiento":false,"lugar":"loc.espesura","valoracion":{"intensidad":0.1,"intimidad":0.0,"agresion":0.0,"exposicion":0.0,"afecto":0.0,"dominio":0.0,"reposo":0.3},"tags":[],"nuevos":[],"atmosfera":"oscura","tropo":"cotidiano"}
 > Salgo del bosque.
-= {"acto":"salir","objetivos":["loc.linde"],"movimiento":true,"lugar":"loc.linde","valoracion":{"intensidad":0.2,"intimidad":0.0,"agresion":0.0,"exposicion":0.0,"afecto":0.0,"dominio":0.1},"tags":[],"nuevos":[{"slug":"loc.linde","nombre":"Linde del bosque","tipo":"campo"}],"atmosfera":"fria","tropo":"cotidiano"}
+= {"acto":"salir","objetivos":["loc.linde"],"movimiento":true,"lugar":"loc.linde","valoracion":{"intensidad":0.3,"intimidad":0.0,"agresion":0.0,"exposicion":0.0,"afecto":0.0,"dominio":0.1,"reposo":0.0},"tags":[],"nuevos":[{"slug":"loc.linde","nombre":"Linde del bosque","tipo":"campo"}],"atmosfera":"fria","tropo":"cotidiano"}

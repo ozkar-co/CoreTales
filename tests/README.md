@@ -41,6 +41,9 @@ lo que se quiere ver es qué intención produce la etapa 1.
   valoración de la etapa 1 vino en cero.
 - **paquete de la etapa 2**: si el canon dice `forcejeo` y la prosa narra
   placer, el problema es del prompt, no del motor.
+- **presentes / llevas / fuera de escena**: el mundo. Si alguien te sigue al
+  cambiar de sitio sin ser objeto del acto, o un muerto reacciona, o el jugador
+  usa algo que no tiene, se rompió una primitiva.
 
 ## Escenas
 
@@ -49,3 +52,8 @@ lo que se quiere ver es qué intención produce la etapa 1.
 | `01_oficina_ivy` | abrir a alguien neutral lleva turnos; el primer toque no la hace ceder |
 | `02_rival_forcejeo` | odio alto + acto sexual = rechazo o violencia; límite entre forcejeo y forzado; secuelas |
 | `03_salto_de_tono` | la atmósfera sigue a quien recibe el acto; el estado de un NPC no contagia al otro |
+| `04_bosque_gnomos` | mundo sin relaciones: grupo de NPCs, muerte, cosas con dueño, moverse y dejar atrás lo del sitio anterior, descansar |
+
+La 04 también mide a la etapa 1: `fuera` (quién muere) y `dueno` (qué lleva el
+jugador) son decisiones de interpretación. Con `gpt-4o` salen; con `gpt-4o-mini`
+suelen faltar, y entonces el motor no puede saber que los gnomos murieron.

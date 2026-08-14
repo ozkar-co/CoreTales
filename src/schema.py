@@ -64,7 +64,11 @@ CREATE TABLE IF NOT EXISTS entidades (
     clase TEXT NOT NULL,
     nombre TEXT NOT NULL,
     tipo_personaje TEXT,
-    tipo_lugar TEXT
+    tipo_lugar TEXT,
+    lugar TEXT,
+    dueno TEXT,
+    existe TEXT NOT NULL DEFAULT 'activo',
+    cantidad INTEGER NOT NULL DEFAULT 1
 );
 CREATE TABLE IF NOT EXISTS rasgos (
     slug TEXT NOT NULL,
@@ -119,8 +123,18 @@ ANCHOR_FILE = {
     "tipos_lugar": "tipos_lugar.txt",
     "atmosferas": "atmosferas.txt",
 }
-SLUG_PREFIX = ("pc.", "npc.", "loc.")
-MAX_NUEVOS = 4
+SLUG_PREFIX = ("pc.", "npc.", "loc.", "obj.")
+EXISTENCIAS = ("activo", "muerto", "ausente")
+MAX_NUEVOS = 6
 MAX_TAGS = 6
 SAMPLE_FRASES = 6
 MAX_EVENTOS = 12
+# columnas añadidas después de las primeras partidas
+MIGRACIONES = {
+    "entidades": {
+        "lugar": "TEXT",
+        "dueno": "TEXT",
+        "existe": "TEXT NOT NULL DEFAULT 'activo'",
+        "cantidad": "INTEGER NOT NULL DEFAULT 1",
+    },
+}
