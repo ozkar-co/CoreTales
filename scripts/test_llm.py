@@ -9,12 +9,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-from adapters.llamacpp import LlamaCppAdapter
+from adapters.llamacpp import LlamaCppAdapter, PROBE_SLOT
 from jsonutil import parse_turn
 
 
 def main() -> int:
-    llm = LlamaCppAdapter()
+    llm = LlamaCppAdapter(slot=PROBE_SLOT)
     print(f"POST {llm.base_url}/chat/completions", file=sys.stderr)
     raw = llm.complete(
         "You output only JSON objects. No markdown.",

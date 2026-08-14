@@ -13,8 +13,8 @@ from prompt import SYSTEM_PROMPT
 from store import Store
 
 RETRY_HINT = (
-    "Eso no era JSON válido, o era una plantilla. "
-    "Usa la acción del jugador. Devuelve SOLO JSON con ops reales y narrative."
+    "Un solo objeto JSON con ops (nombres reales, no placeholders) "
+    "y narrative en segunda persona sobre la acción del jugador."
 )
 
 
@@ -40,6 +40,9 @@ def _looks_stub(data: dict[str, Any]) -> bool:
         return True
     n = narrative.strip().lower()
     if n in _STUBS or n.startswith("texto que ve"):
+        return True
+    blob = json.dumps(data, ensure_ascii=False)
+    if "pc.nombre" in blob or "loc.lugar" in blob or "npc.nombre" in blob:
         return True
     return False
 

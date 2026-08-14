@@ -38,4 +38,4 @@ JSON crudo en stderr:
 CORE_TALES_DEBUG=1 ./scripts/run.sh
 ```
 
-El jugador solo ve prosa. Ctrl-D o Ctrl-C para salir. No hay comandos.
+El servidor llama.cpp reutiliza el prefijo de reglas (KV cache) en un slot; `test_llm` usa otro para no pisarlo. Un modelo **instruct** (seguir instrucciones + JSON) encaja mejor que un finetune de roleplay.
