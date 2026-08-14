@@ -1,0 +1,23 @@
+# titulo: La rival - hostilidad, forcejeo y limite
+# Vera nace con odio alto: se busca ver que el acercamiento sexual suba odio,
+# enojo y verguenza, y que el motor devuelva rechazo o violencia, nunca deseo.
+# Los ultimos turnos empujan a proposito para ver donde el motor dice "forzado"
+# y que secuelas deja.
+> Entra Vera, la companera con la que siempre he rivalizado. Me desprecia y lo se.
+= {"acto":"observar","objetivos":["npc.vera"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.2,"intimidad":0.1,"agresion":0.0,"exposicion":0.1,"afecto":0.0,"dominio":0.2},"tags":[],"nuevos":[{"slug":"npc.vera","nombre":"Vera","tipo":"rival","rasgos":{"valentia":0.7,"dominancia":0.65,"impulsividad":0.6,"moral":0.6,"fuerza":0.5,"inteligencia":0.7},"estado":{"enojo":0.35,"estres":0.3},"vinculo":{"odio":0.75,"afecto":0.05,"respeto":0.3,"deseo":0.0,"miedo":0.1}}],"atmosfera":"tensa","tropo":"rivalidad"}
+> Le digo delante de todos que hoy manda ella.
+= {"acto":"hablar","objetivos":["npc.vera"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.3,"intimidad":0.1,"agresion":0.0,"exposicion":0.5,"afecto":0.1,"dominio":0.3},"tags":[],"nuevos":[],"atmosfera":"tensa","tropo":"humillacion"}
+> Me acerco hasta invadirle el espacio y no me muevo.
+= {"acto":"acercarse","objetivos":["npc.vera"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.4,"intimidad":0.4,"agresion":0.0,"exposicion":0.3,"afecto":0.0,"dominio":0.6},"tags":[],"nuevos":[],"atmosfera":"tensa","tropo":"amenaza_velada"}
+> Le apoyo la mano en la cadera.
+= {"acto":"tocar","objetivos":["npc.vera"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.5,"intimidad":0.65,"agresion":0.1,"exposicion":0.4,"afecto":0.0,"dominio":0.6},"tags":["roce"],"nuevos":[],"atmosfera":"erotica","tropo":"roce"}
+> La agarro del brazo y la empujo contra la pared.
+= {"acto":"agarrar","objetivos":["npc.vera"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.7,"intimidad":0.5,"agresion":0.6,"exposicion":0.5,"afecto":0.0,"dominio":0.8},"tags":[],"nuevos":[],"atmosfera":"violenta","tropo":"forcejeo"}
+> Intento besarla a la fuerza.
+= {"acto":"besar","objetivos":["npc.vera"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.8,"intimidad":0.9,"agresion":0.5,"exposicion":0.5,"afecto":0.0,"dominio":0.9},"tags":[],"nuevos":[],"atmosfera":"violenta","tropo":"forcejeo"}
+> Le sujeto las dos manos y sigo.
+= {"acto":"someter","objetivos":["npc.vera"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.9,"intimidad":0.9,"agresion":0.75,"exposicion":0.6,"afecto":0.0,"dominio":1.0},"tags":[],"nuevos":[],"atmosfera":"violenta","tropo":"forcejeo"}
+> Me detengo y me aparto.
+= {"acto":"apartarse","objetivos":["npc.vera"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.2,"intimidad":0.0,"agresion":0.0,"exposicion":0.1,"afecto":0.1,"dominio":0.0},"tags":[],"nuevos":[],"atmosfera":"tensa","tropo":"rechazo"}
+> Al dia siguiente le pido perdon en el pasillo, a solas.
+= {"acto":"disculparse","objetivos":["npc.vera"],"movimiento":true,"lugar":"loc.pasillo","valoracion":{"intensidad":0.3,"intimidad":0.2,"agresion":0.0,"exposicion":0.1,"afecto":0.8,"dominio":0.0},"tags":[],"nuevos":[{"slug":"loc.pasillo","nombre":"Pasillo","tipo":"pasillo"}],"atmosfera":"fria","tropo":"rechazo"}

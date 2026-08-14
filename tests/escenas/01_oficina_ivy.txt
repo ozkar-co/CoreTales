@@ -1,0 +1,19 @@
+# titulo: Oficina con Ivy - abrir a alguien lleva turnos
+# Ivy nace neutral-amable: no odia, tampoco desea. Se busca ver si el motor
+# obliga a ganarse la apertura antes de que ceda, en vez de ceder al primer toque.
+> Estoy en la oficina. Mi companera Ivy esta ahi, nunca hemos hablado y no he dejado de admirarla.
+= {"acto":"observar","objetivos":["npc.ivy"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.2,"intimidad":0.1,"agresion":0.0,"exposicion":0.1,"afecto":0.4,"dominio":0.1},"tags":["admiracion"],"nuevos":[{"slug":"npc.ivy","nombre":"Ivy","tipo":"companera","rasgos":{"apariencia":0.85,"sociabilidad":0.6,"valentia":0.5,"moral":0.5},"estado":{"estres":0.2},"vinculo":{"afecto":0.35,"respeto":0.4,"deseo":0.1,"odio":0.0}}],"atmosfera":"laboral","tropo":"mirada"}
+> Me acerco con la excusa de unos documentos y le hablo del trabajo, con calma.
+= {"acto":"hablar","objetivos":["npc.ivy"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.2,"intimidad":0.15,"agresion":0.0,"exposicion":0.1,"afecto":0.6,"dominio":0.1},"tags":[],"nuevos":[],"atmosfera":"laboral","tropo":"cotidiano"}
+> Le pregunto por ella, la escucho y me rio de su chiste.
+= {"acto":"hablar","objetivos":["npc.ivy"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.2,"intimidad":0.2,"agresion":0.0,"exposicion":0.05,"afecto":0.8,"dominio":0.05},"tags":[],"nuevos":[],"atmosfera":"laboral","tropo":"complicidad"}
+> Le digo en voz baja que me gusta como se rie.
+= {"acto":"halagar","objetivos":["npc.ivy"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.3,"intimidad":0.35,"agresion":0.0,"exposicion":0.2,"afecto":0.8,"dominio":0.15},"tags":[],"nuevos":[],"atmosfera":"tensa","tropo":"seduccion"}
+> Le pongo una mano en la cintura mientras hablamos.
+= {"acto":"tocar","objetivos":["npc.ivy"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.4,"intimidad":0.55,"agresion":0.0,"exposicion":0.3,"afecto":0.6,"dominio":0.35},"tags":["roce"],"nuevos":[],"atmosfera":"erotica","tropo":"roce"}
+> La beso.
+= {"acto":"besar","objetivos":["npc.ivy"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.55,"intimidad":0.8,"agresion":0.0,"exposicion":0.35,"afecto":0.7,"dominio":0.4},"tags":[],"nuevos":[],"atmosfera":"erotica","tropo":"seduccion"}
+> Le pongo una mano sobre un seno.
+= {"acto":"tocar","objetivos":["npc.ivy"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.6,"intimidad":0.9,"agresion":0.0,"exposicion":0.4,"afecto":0.5,"dominio":0.5},"tags":["roce"],"nuevos":[],"atmosfera":"erotica","tropo":"roce"}
+> La llevo al despacho vacio y cierro la puerta.
+= {"acto":"ir","objetivos":["npc.ivy","loc.despacho"],"movimiento":true,"lugar":"loc.despacho","valoracion":{"intensidad":0.4,"intimidad":0.6,"agresion":0.0,"exposicion":0.0,"afecto":0.6,"dominio":0.45},"tags":[],"nuevos":[{"slug":"loc.despacho","nombre":"Despacho vacio","tipo":"despacho"}],"atmosfera":"clandestina","tropo":"seduccion"}

@@ -1,4 +1,8 @@
-"""Partida en SQLite. Catálogo de referencia + instancia."""
+"""Partida en SQLite. Catálogo de referencia + instancia.
+
+El motor no tiene reglas por escena: la etapa 1 valora el acto en los ejes
+de `mente`, el motor calcula impacto y desenlace, la etapa 2 solo viste.
+"""
 
 from __future__ import annotations
 
@@ -9,9 +13,10 @@ import unicodedata
 from pathlib import Path
 from typing import Any
 
+import mente
 from catalog import catalog_empty, import_catalog
 from schema import (
-    CORE_KEYS,
+    MAX_EVENTOS,
     MAX_NUEVOS,
     MAX_TAGS,
     SAMPLE_FRASES,
@@ -22,43 +27,9 @@ from schema import (
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_SAVE = ROOT / "saves" / "default.sqlite"
 
-_DELTA_CAP = 0.3
 _SLUG_REST = re.compile(r"^[a-z0-9_]+$")
-_HECHOS_MAX = 30
 _USADAS_MAX = 24
-_HOSTILE_TIPOS = {
-    "rival",
-    "antagonista",
-    "sombra",
-    "guardian",
-    "rival_afectivo",
-}
-_OPEN_TIPOS = {"amante", "provocador", "companera"}
-_NUCLEO_TIPO = {
-    "rival": (0.2, 0.65, 0.4),
-    "rival_afectivo": (0.25, 0.6, 0.4),
-    "antagonista": (0.15, 0.7, 0.45),
-    "sombra": (0.25, 0.6, 0.4),
-    "jefe": (0.4, 0.7, 0.25),
-    "guardian": (0.3, 0.6, 0.35),
-    "companera": (0.55, 0.45, 0.15),
-    "amante": (0.7, 0.45, 0.2),
-    "provocador": (0.6, 0.5, 0.25),
-}
-_CORRECTION_RE = re.compile(
-    r"(^\s*no\b.{0,80}?\b(era|fue|sobre)\b)|(\bno era\b)|(\bera sobre\b)",
-    re.I | re.S,
-)
-_HOSTILE_TAGS = {
-    "desprecia",
-    "odio",
-    "hostil",
-    "rechazo",
-    "violencia",
-    "asco",
-}
-_STRIP_ACTOS = {"desvestir"}
-_EXHIBIT_ACTOS = {"sacudir", "exhibir", "mostrar"}
+_MAX_OBJETIVOS = 2
 _TIPO_ALIAS = {
     "provocadora": "provocador",
     "provocativo": "provocador",
@@ -68,80 +39,12 @@ _TIPO_ALIAS = {
     "trabajador": "ciudadano",
     "jefa": "jefe",
 }
-_SLUG_TIPO = {
-    "jefe": "jefe",
-    "jefa": "jefe",
-    "ivy": "companera",
-    "rival": "rival",
-    "antagonista": "antagonista",
-    "sombra": "sombra",
-    "guardian": "guardian",
-}
-_MOVE_ACTOS = {
-    "ir",
-    "entrar",
-    "salir",
-    "caminar",
-    "acercar",
-    "acercarse",
-    "mover",
-    "volver",
-}
-_CONTACT_ACTOS = {
-    "tocar",
-    "besar",
-    "agarrar",
-    "acariciar",
-    "lamer",
-    "morder",
-    "desvestir",
-    "follar",
-    "coger",
-    "meter",
-    "penetrar",
-    "chupar",
-    "introducir",
-}
-_BODY_TAGS = {
-    "desnuda",
-    "desnudo",
-    "cuerpo_expuesto",
-    "exhibicionista",
-    "exhibicion",
-    "provocativa",
-    "senos",
-    "vestimenta_provocativa",
-}
-_STALE_TROPO = {"chisme_oficina", "chisme", "cotidiano", "cotidianidad"}
-_ACTO_TROPO = {
-    "tocar": "roce",
-    "besar": "seduccion",
-    "acariciar": "roce",
-    "ir": "seduccion",
-}
-_ROPA_WORDS = (
-    "gafete",
-    "falda",
-    "camisa",
-    "vestida",
-    "ropa",
-    "botón",
-    "boton",
-)
-_NO_CONTACT_WORDS = (
-    "se podría tocar y no",
-    "se podria tocar y no",
-    "nada “pasa”",
-    "nada pasa",
-    "nada 'pasa'",
-)
 
 
 def _ascii_slug(text: str) -> str:
     nfkd = unicodedata.normalize("NFKD", text)
     plain = "".join(c for c in nfkd if not unicodedata.combining(c))
-    s = re.sub(r"[^a-z0-9]+", "_", plain.lower()).strip("_")
-    return s
+    return re.sub(r"[^a-z0-9]+", "_", plain.lower()).strip("_")
 
 
 def _valid_slug(slug: str) -> bool:
@@ -165,8 +68,12 @@ def _normalize_slug(raw: str, default_prefix: str = "npc") -> str | None:
     return slug if _valid_slug(slug) else None
 
 
-def _clamp01(value: float) -> float:
-    return max(0.0, min(1.0, value))
+def _bool(raw: Any) -> bool:
+    if isinstance(raw, bool):
+        return raw
+    if isinstance(raw, str):
+        return raw.strip().lower() in ("1", "true", "si", "sí", "yes")
+    return bool(raw)
 
 
 class Store:
@@ -183,11 +90,11 @@ class Store:
             import_catalog(self.conn)
         self._ensure_instance()
         self._last_sampled: list[str] = []
-        raw_last = self._meta_json("last_intent", None)
+        self.last_resolucion: list[dict[str, Any]] = []
+        crudo = self._meta_json("last_intent", None)
         self.last_intent: dict[str, Any] | None = (
-            raw_last if isinstance(raw_last, dict) else None
+            crudo if isinstance(crudo, dict) else None
         )
-        self.last_player: str = ""
 
     def close(self) -> None:
         self.conn.close()
@@ -204,15 +111,6 @@ class Store:
     def _ensure_instance(self) -> None:
         if self.conn.execute("SELECT 1 FROM scene WHERE id = 1").fetchone() is None:
             self.conn.execute("INSERT INTO scene (id) VALUES (1)")
-        if (
-            self.conn.execute(
-                "SELECT 1 FROM meta WHERE clave = 'beat'"
-            ).fetchone()
-            is None
-        ):
-            self.conn.execute(
-                "INSERT INTO meta (clave, valor) VALUES ('beat', '')"
-            )
         self.conn.commit()
 
     def ids(self, table: str) -> list[str]:
@@ -225,34 +123,15 @@ class Store:
         ).fetchone()
         return row is not None
 
+    def _primero_que_exista(self, table: str, candidatos: tuple[str, ...]) -> str:
+        for ident in candidatos:
+            if self._exists_id(table, ident):
+                return ident
+        return ""
+
     def get_scene(self) -> dict[str, Any]:
         row = self.conn.execute("SELECT * FROM scene WHERE id = 1").fetchone()
         return dict(row) if row else {}
-
-    def _entity(self, slug: str | None) -> dict[str, Any] | None:
-        if not slug:
-            return None
-        row = self.conn.execute(
-            "SELECT * FROM entidades WHERE slug = ?", (slug,)
-        ).fetchone()
-        return dict(row) if row else None
-
-    def _nucleo(self, slug: str | None) -> dict[str, float] | None:
-        if not slug:
-            return None
-        row = self.conn.execute(
-            "SELECT afinidad, dominancia, estres FROM nucleo WHERE slug = ?",
-            (slug,),
-        ).fetchone()
-        return dict(row) if row else None
-
-    def _tags_of(self, slug: str | None) -> list[str]:
-        if not slug:
-            return []
-        rows = self.conn.execute(
-            "SELECT tag FROM tags WHERE slug = ? ORDER BY tag", (slug,)
-        ).fetchall()
-        return [r["tag"] for r in rows]
 
     def _set_scene(self, **fields: Any) -> None:
         if not fields:
@@ -262,182 +141,371 @@ class Store:
             f"UPDATE scene SET {cols} WHERE id = 1", list(fields.values())
         )
 
-    def _insert_entity(
-        self,
-        slug: str,
-        nombre: str,
-        tipo: str | None,
-    ) -> None:
+    def _entity(self, slug: str | None) -> dict[str, Any] | None:
+        if not slug:
+            return None
+        row = self.conn.execute(
+            "SELECT * FROM entidades WHERE slug = ?", (slug,)
+        ).fetchone()
+        return dict(row) if row else None
+
+    def npcs(self) -> list[str]:
+        return [
+            r["slug"]
+            for r in self.conn.execute(
+                "SELECT slug FROM entidades WHERE clase = 'npc' ORDER BY slug"
+            )
+        ]
+
+    def _insert_entity(self, slug: str, nombre: str, tipo: str | None) -> None:
         clase = slug.split(".", 1)[0]
-        tipo_p = tipo if clase in ("pc", "npc") else None
-        tipo_l = tipo if clase == "loc" else None
         self.conn.execute(
             """
             INSERT INTO entidades (slug, clase, nombre, tipo_personaje, tipo_lugar)
             VALUES (?, ?, ?, ?, ?)
             """,
-            (slug, clase, nombre, tipo_p, tipo_l),
+            (
+                slug,
+                clase,
+                nombre,
+                tipo if clase in ("pc", "npc") else None,
+                tipo if clase == "loc" else None,
+            ),
         )
         if clase in ("pc", "npc"):
+            self._ensure_perfil(slug)
+
+    # --- perfil: rasgos fijos, estado volátil, vínculos dirigidos ---
+
+    def _ensure_perfil(self, slug: str) -> None:
+        for rasgo, valor in mente.rasgos_base().items():
             self.conn.execute(
-                "INSERT OR IGNORE INTO nucleo (slug) VALUES (?)", (slug,)
+                "INSERT OR IGNORE INTO rasgos (slug, rasgo, valor) VALUES (?, ?, ?)",
+                (slug, rasgo, valor),
             )
-            seed = _NUCLEO_TIPO.get(tipo or "")
-            if seed:
-                self.conn.execute(
-                    "UPDATE nucleo SET afinidad=?, dominancia=?, estres=? "
-                    "WHERE slug=?",
-                    (*seed, slug),
-                )
+        for eje, valor in mente.estado_base().items():
+            self.conn.execute(
+                "INSERT OR IGNORE INTO estado (slug, eje, valor) VALUES (?, ?, ?)",
+                (slug, eje, valor),
+            )
+
+    def _rasgos(self, slug: str) -> dict[str, float]:
+        out = mente.rasgos_base()
+        for r in self.conn.execute(
+            "SELECT rasgo, valor FROM rasgos WHERE slug = ?", (slug,)
+        ):
+            if r["rasgo"] in mente.RASGOS:
+                out[r["rasgo"]] = float(r["valor"])
+        return out
+
+    def _estado(self, slug: str) -> dict[str, float]:
+        out = mente.estado_base()
+        for r in self.conn.execute(
+            "SELECT eje, valor FROM estado WHERE slug = ?", (slug,)
+        ):
+            if r["eje"] in mente.ESTADO:
+                out[r["eje"]] = float(r["valor"])
+        return out
+
+    def _vinculo(self, origen: str, destino: str) -> dict[str, float]:
+        out = mente.vinculo_base()
+        for r in self.conn.execute(
+            "SELECT eje, valor FROM vinculos WHERE origen = ? AND destino = ?",
+            (origen, destino),
+        ):
+            if r["eje"] in mente.VINCULO:
+                out[r["eje"]] = float(r["valor"])
+        return out
+
+    def _guardar_rasgos(self, slug: str, valores: dict[str, float]) -> None:
+        for rasgo, valor in valores.items():
+            self.conn.execute(
+                "INSERT INTO rasgos (slug, rasgo, valor) VALUES (?, ?, ?) "
+                "ON CONFLICT(slug, rasgo) DO UPDATE SET valor = excluded.valor",
+                (slug, rasgo, mente.clamp01(valor)),
+            )
+
+    def _guardar_estado(self, slug: str, valores: dict[str, float]) -> None:
+        for eje, valor in valores.items():
+            self.conn.execute(
+                "INSERT INTO estado (slug, eje, valor) VALUES (?, ?, ?) "
+                "ON CONFLICT(slug, eje) DO UPDATE SET valor = excluded.valor",
+                (slug, eje, mente.clamp01(valor)),
+            )
+
+    def _guardar_vinculo(
+        self, origen: str, destino: str, valores: dict[str, float]
+    ) -> None:
+        for eje, valor in valores.items():
+            self.conn.execute(
+                "INSERT INTO vinculos (origen, destino, eje, valor) "
+                "VALUES (?, ?, ?, ?) "
+                "ON CONFLICT(origen, destino, eje) DO UPDATE SET valor = excluded.valor",
+                (origen, destino, eje, mente.clamp01(valor)),
+            )
+
+    def _sumar_estado(self, slug: str, deltas: dict[str, float]) -> dict[str, float]:
+        actual = self._estado(slug)
+        nuevo = {k: mente.clamp01(actual[k] + deltas.get(k, 0.0)) for k in actual}
+        self._guardar_estado(slug, nuevo)
+        return nuevo
+
+    def _sumar_vinculo(
+        self, origen: str, destino: str, deltas: dict[str, float]
+    ) -> dict[str, float]:
+        actual = self._vinculo(origen, destino)
+        nuevo = {k: mente.clamp01(actual[k] + deltas.get(k, 0.0)) for k in actual}
+        self._guardar_vinculo(origen, destino, nuevo)
+        return nuevo
+
+    def _tags_of(self, slug: str | None) -> list[str]:
+        if not slug:
+            return []
+        rows = self.conn.execute(
+            "SELECT tag FROM tags WHERE slug = ? ORDER BY tag", (slug,)
+        ).fetchall()
+        return [r["tag"] for r in rows]
+
+    def perfil(self, slug: str) -> dict[str, Any]:
+        """Ficha completa. La usan el paquete de narración y los logs."""
+        ent = self._entity(slug) or {}
+        pc = self.get_scene().get("pc")
+        return {
+            "slug": slug,
+            "nombre": ent.get("nombre"),
+            "tipo": ent.get("tipo_personaje"),
+            "rasgos": self._rasgos(slug),
+            "estado": self._estado(slug),
+            "vinculo_con_pc": self._vinculo(slug, pc) if pc and pc != slug else {},
+            "tags": self._tags_of(slug),
+        }
+
+    # --- etapa 1 ---
 
     def translate_packet(self, player: str) -> str:
         scene = self.get_scene()
         pc_slug = scene.get("pc")
-        loc_slug = scene.get("location")
-        pc = self._entity(pc_slug)
-        loc = self._entity(loc_slug)
+        loc = self._entity(scene.get("location"))
         npcs = []
-        for r in self.conn.execute(
-            "SELECT slug, nombre, tipo_personaje FROM entidades WHERE clase = 'npc'"
-        ):
-            item = dict(r)
-            item["postura"] = self._stance(item["slug"])
-            npcs.append(item)
+        for slug in self.npcs():
+            ent = self._entity(slug) or {}
+            npcs.append(
+                {
+                    "slug": slug,
+                    "nombre": ent.get("nombre"),
+                    "tipo": ent.get("tipo_personaje"),
+                    "estado": mente.resumen_estado(self._estado(slug)),
+                    "siente_por_ti": mente.resumen_vinculo(
+                        self._vinculo(slug, pc_slug)
+                    )
+                    if pc_slug
+                    else "",
+                    "tags": self._tags_of(slug),
+                }
+            )
         state = {
-            "scene": {
-                "pc": pc_slug,
-                "location": loc_slug,
+            "escena": {
+                "lugar": loc["nombre"] if loc else None,
+                "lugar_slug": scene.get("location"),
+                "tipo_lugar": loc["tipo_lugar"] if loc else None,
                 "atmosfera": scene.get("atmosfera"),
                 "tropo": scene.get("tropo"),
-                "time": {
-                    "value": scene.get("time_value"),
-                    "unit": scene.get("time_unit"),
-                    "label": scene.get("time_label"),
-                },
+                "turno": scene.get("time_value"),
             },
-            "pc": {
-                "slug": pc_slug,
-                "nombre": pc["nombre"] if pc else None,
-                "nucleo": self._nucleo(pc_slug),
-                "tags": self._tags_of(pc_slug),
-            }
-            if pc_slug
-            else None,
-            "lugar": {
-                "slug": loc_slug,
-                "nombre": loc["nombre"] if loc else None,
-                "tipo": loc["tipo_lugar"] if loc else None,
-            }
-            if loc_slug
-            else None,
             "npcs": npcs,
-            "hechos": self._hechos(),
             "foco": self._meta_json("foco", ""),
             "ultimo_acto": (self.last_intent or {}).get("acto") or "",
+            "hechos": self.hechos(),
         }
         return (
             f"Acción del jugador:\n{player}\n\n"
             f"Estado actual:\n{json.dumps(state, ensure_ascii=False, indent=2)}\n\n"
-            "JSON de intención de este turno. Sin narrative.\n"
-            "foco: 'sus/ella' es el foco, no el NPC más cómodo.\n"
-            "Un rival, antagonista o alguien que desprecia NO cede: deltas de afinidad negativos o cero; "
-            "tags desprecia/hostil, nunca desnuda ni provocativa inventadas.\n"
-            "Si el jugador corrige ('no, era X'), repetí el acto anterior sobre el NPC correcto.\n"
+            "Devolvé el JSON de intención de este turno.\n"
             "tipos_personaje útiles: companera, jefe, provocador, amante, rival, "
             "subalterno, ciudadano, heroe.\n"
             "tipos_lugar útiles: oficina, despacho, cubiculo, pasillo, calle.\n"
-            "atmosferas útiles: laboral, erotica, tensa, fria, clandestina, "
-            "erotica_laboral, vigilada.\n"
-            "tropos útiles: roce, seduccion, exhibicion, exposicion, mirada, "
-            "chisme_oficina, cotidiano, vigilancia, tentacion."
+            "atmosferas útiles: laboral, erotica, tensa, hostil, violenta, oscura, "
+            "humillante, fria.\n"
+            "tropos útiles: roce, seduccion, exhibicion, mirada, rivalidad, "
+            "rechazo, humillacion, huida, forcejeo, pelea."
         )
 
-    def apply_intent(self, intent: dict[str, Any], player: str = "") -> None:
-        acto = _ascii_slug(intent.get("acto") or "")
+    # --- turno ---
+
+    def apply_intent(
+        self, intent: dict[str, Any], player: str = ""
+    ) -> list[dict[str, Any]]:
         self._apply_nuevos(intent.get("nuevos"))
         self._spawn_from_tokens(intent.get("objetivos"))
         self._ensure_pc()
-        self._apply_lugar(intent.get("lugar"), acto)
+        self._apply_lugar(intent.get("lugar"), _bool(intent.get("movimiento")))
+        self._reposo_general()
+
+        val = mente.valoracion(intent.get("valoracion"))
+        objetivos = self._objetivos_npc(intent.get("objetivos"), intent.get("nuevos"))
+        resoluciones = [self._resolver_npc(slug, val) for slug in objetivos]
+        self.last_resolucion = resoluciones
+
+        if self._acto_pasa(resoluciones):
+            self._apply_tags(intent.get("tags"), objetivos)
         self._apply_anchor("atmosfera", intent.get("atmosfera"), "atmosferas")
         self._apply_anchor("tropo", intent.get("tropo"), "tropos")
-        self._nudge_tone(acto, intent.get("tags"))
-        deltas = self._filter_deltas(intent.get("deltas"), intent.get("objetivos"))
-        self._apply_deltas(deltas, intent.get("objetivos"))
-        if acto in _CONTACT_ACTOS and not (
-            isinstance(deltas, dict) and deltas
-        ):
-            if self._any_hostile(intent.get("objetivos")):
-                self._apply_deltas(
-                    {"afinidad": -0.08, "estres": 0.12},
-                    intent.get("objetivos"),
-                )
-            else:
-                self._apply_deltas(
-                    {"afinidad": 0.08, "dominancia": 0.12},
-                    intent.get("objetivos"),
-                )
-        self._apply_tags(
-            intent.get("tags"),
-            intent.get("objetivos"),
-            intent.get("nuevos"),
-            acto=acto,
+        self._derivar_tono(objetivos, resoluciones)
+        self._anotar_eventos(intent, resoluciones)
+
+        if objetivos:
+            self._meta_set("foco", objetivos[0])
+        self._meta_set(
+            "last_intent",
+            {
+                "acto": intent.get("acto"),
+                "objetivos": intent.get("objetivos"),
+                "valoracion": val,
+            },
         )
-        for slug in self._delta_targets(intent.get("objetivos")):
-            self._strip_hostile_body(slug)
-        self._apply_player_stance(player, intent)
-        self._record_hechos(acto, intent)
-        self._set_foco(intent)
+        self.last_intent = intent
         scene = self.get_scene()
         self._set_scene(time_value=(scene.get("time_value") or 0) + 1)
-        self.last_intent = intent
-        self.last_player = player
+        return resoluciones
+
+    def _acto_pasa(self, resoluciones: list[dict[str, Any]]) -> bool:
+        if not resoluciones:
+            return True
+        return any(r["desenlace"] in ("ocurre", "forzado") for r in resoluciones)
+
+    def _reposo_general(self) -> None:
+        for slug in [*self.npcs(), self.get_scene().get("pc")]:
+            if not slug:
+                continue
+            self._guardar_estado(slug, mente.reposo(self._estado(slug)))
+
+    def _resolver_npc(self, slug: str, val: dict[str, float]) -> dict[str, Any]:
+        pc = self.get_scene().get("pc") or "pc.jugador"
+        self._ensure_perfil(slug)
+        rasgos = self._rasgos(slug)
+        estado_antes = self._estado(slug)
+        vinculo_antes = self._vinculo(slug, pc)
+
+        de, dv = mente.impacto(val, rasgos, vinculo_antes)
+        estado = self._sumar_estado(slug, de)
+        vinculo = self._sumar_vinculo(slug, pc, dv)
+
+        res = mente.resolver(val, estado, rasgos, vinculo)
+        de2, dv2 = mente.secuela(res, val)
+        estado = self._sumar_estado(slug, de2)
+        vinculo = self._sumar_vinculo(slug, pc, dv2)
+
+        ent = self._entity(slug) or {}
+        res.update(
+            {
+                "slug": slug,
+                "nombre": ent.get("nombre") or slug,
+                "reaccion": mente.FRASE_IMPULSO[res["impulso"]],
+                "efecto": mente.FRASE_DESENLACE[res["desenlace"]],
+                "estado_antes": estado_antes,
+                "estado": estado,
+                "vinculo_antes": vinculo_antes,
+                "vinculo": vinculo,
+            }
+        )
+        return res
+
+    def _objetivos_npc(self, objetivos: Any, nuevos: Any) -> list[str]:
+        slugs: list[str] = []
+        for token in objetivos if isinstance(objetivos, list) else []:
+            if not isinstance(token, str):
+                continue
+            found = self._resolve_objetivo(token)
+            if found and found.startswith("npc.") and found not in slugs:
+                slugs.append(found)
+        if not slugs:
+            # aparecer en escena no es recibir el acto: solo se usan si no hay objetivo
+            for item in nuevos if isinstance(nuevos, list) else []:
+                if not isinstance(item, dict) or not isinstance(item.get("slug"), str):
+                    continue
+                slug = _normalize_slug(item["slug"])
+                if slug and slug.startswith("npc.") and self._entity(slug):
+                    if slug not in slugs:
+                        slugs.append(slug)
+        if not slugs:
+            foco = self._meta_json("foco", "")
+            if isinstance(foco, str) and foco.startswith("npc.") and self._entity(foco):
+                slugs.append(foco)
+        return slugs[:_MAX_OBJETIVOS]
+
+    def _resolve_objetivo(self, token: str) -> str | None:
+        slug = _normalize_slug(token)
+        if slug and self._entity(slug):
+            return slug
+        row = self.conn.execute(
+            "SELECT slug FROM entidades WHERE lower(nombre) = lower(?)",
+            (token.strip(),),
+        ).fetchone()
+        return row["slug"] if row else None
+
+    # --- altas de entidades ---
 
     def _apply_nuevos(self, nuevos: Any) -> None:
+        """Primero existen todos, después se les infiere el perfil.
+
+        El vínculo apunta al PC, así que el PC tiene que estar antes.
+        """
+        altas = self._alta_entidades(nuevos)
+        self._ensure_pc()
+        for slug, item in altas:
+            self._perfil_inferido(slug, item)
+
+    def _alta_entidades(self, nuevos: Any) -> list[tuple[str, dict[str, Any]]]:
         if not isinstance(nuevos, list):
-            return
+            return []
+        altas: list[tuple[str, dict[str, Any]]] = []
         created = 0
         for item in nuevos:
             if created >= MAX_NUEVOS:
                 break
-            if not isinstance(item, dict):
-                continue
-            raw = item.get("slug")
-            if not isinstance(raw, str):
+            if not isinstance(item, dict) or not isinstance(item.get("slug"), str):
                 continue
             tipo = item.get("tipo") if isinstance(item.get("tipo"), str) else ""
-            tipo = _ascii_slug(tipo) if tipo else ""
-            tipo = _TIPO_ALIAS.get(tipo, tipo)
+            tipo = _TIPO_ALIAS.get(_ascii_slug(tipo), _ascii_slug(tipo)) if tipo else ""
             prefix = "loc" if tipo and self._exists_id("tipos_lugar", tipo) else "npc"
-            slug = _normalize_slug(raw, default_prefix=prefix)
-            if not slug:
-                continue
-            if self._entity(slug):
+            slug = _normalize_slug(item["slug"], default_prefix=prefix)
+            if not slug or self._entity(slug):
                 continue
             clase = slug.split(".", 1)[0]
+            rest = slug.split(".", 1)[1]
             if clase == "loc":
                 if tipo and not self._exists_id("tipos_lugar", tipo):
                     tipo = ""
-            else:
-                tipo = _TIPO_ALIAS.get(tipo, tipo)
-                if not tipo or not self._exists_id("tipos_personaje", tipo):
-                    rest = slug.split(".", 1)[1]
-                    tipo = _SLUG_TIPO.get(rest, "")
-                    if not tipo or not self._exists_id("tipos_personaje", tipo):
-                        tipo = "heroe" if clase == "pc" else "companera"
-                    if not self._exists_id("tipos_personaje", tipo):
-                        tipo = "ciudadano" if self._exists_id(
-                            "tipos_personaje", "ciudadano"
-                        ) else ""
+            elif not tipo or not self._exists_id("tipos_personaje", tipo):
+                tipo = rest if self._exists_id("tipos_personaje", rest) else ""
+                if not tipo:
+                    tipo = "heroe" if clase == "pc" else "ciudadano"
+                if not self._exists_id("tipos_personaje", tipo):
+                    tipo = ""
             nombre = item.get("nombre")
             if not isinstance(nombre, str) or not nombre.strip():
-                nombre = slug.split(".", 1)[1].replace("_", " ").title()
+                nombre = rest.replace("_", " ").title()
             self._insert_entity(slug, nombre.strip(), tipo or None)
             created += 1
+            if clase in ("pc", "npc"):
+                altas.append((slug, item))
             scene = self.get_scene()
             if clase == "pc" and not scene.get("pc"):
                 self._set_scene(pc=slug)
             if clase == "loc" and not scene.get("location"):
                 self._set_scene(location=slug)
+        return altas
+
+    def _perfil_inferido(self, slug: str, item: dict[str, Any]) -> None:
+        """Lo único que el LLM decide de un perfil: cómo nace. Después manda el motor."""
+        self._guardar_rasgos(slug, mente.limpiar(item.get("rasgos"), mente.RASGOS))
+        self._guardar_estado(slug, mente.limpiar(item.get("estado"), mente.ESTADO))
+        pc = self.get_scene().get("pc")
+        vinculo = mente.limpiar(item.get("vinculo"), mente.VINCULO)
+        if pc and vinculo and slug != pc:
+            base = mente.vinculo_base()
+            base.update(vinculo)
+            self._guardar_vinculo(slug, pc, base)
 
     def _ensure_pc(self) -> None:
         scene = self.get_scene()
@@ -461,33 +529,23 @@ class Store:
             rest_guess = _ascii_slug(token.split(".")[-1])
             prefix = "loc" if self._exists_id("tipos_lugar", rest_guess) else "npc"
             slug = _normalize_slug(token, default_prefix=prefix)
-            if not slug or slug.startswith("pc."):
-                continue
-            if self._exists_id("tipos_lugar", rest_guess) and not slug.startswith("loc."):
-                slug = f"loc.{rest_guess}"
-            if self._entity(slug):
+            if not slug or slug.startswith("pc.") or self._entity(slug):
                 continue
             rest = slug.split(".", 1)[1]
             if slug.startswith("loc."):
                 tipo = rest if self._exists_id("tipos_lugar", rest) else None
-                nombre = rest.replace("_", " ").title()
             else:
-                tipo = _SLUG_TIPO.get(rest, "")
-                if not tipo and rest in _HOSTILE_TIPOS:
-                    tipo = rest
-                if not tipo or not self._exists_id("tipos_personaje", tipo):
-                    tipo = "companera"
-                nombre = "el jefe" if rest in ("jefe", "jefa") else rest.replace("_", " ").title()
-            self._insert_entity(slug, nombre, tipo)
+                tipo = rest if self._exists_id("tipos_personaje", rest) else None
+            self._insert_entity(slug, rest.replace("_", " ").title(), tipo)
             created += 1
 
-    def _apply_lugar(self, lugar: Any, acto: str = "") -> None:
+    def _apply_lugar(self, lugar: Any, movimiento: bool) -> None:
         if not isinstance(lugar, str) or not lugar.strip():
             return
         raw = lugar.strip()
+        low = raw.lower()
         slug: str | None = None
         tipo: str | None = None
-        low = raw.lower()
         if low.startswith("loc."):
             ident = _ascii_slug(low[4:])
             if ident:
@@ -505,47 +563,15 @@ class Store:
             return
         ent = self._entity(slug)
         if not ent:
-            nombre = slug.split(".", 1)[1].replace("_", " ").title()
-            self._insert_entity(slug, nombre, tipo)
+            self._insert_entity(slug, slug.split(".", 1)[1].replace("_", " ").title(), tipo)
         elif tipo and not ent.get("tipo_lugar"):
             self.conn.execute(
-                "UPDATE entidades SET tipo_lugar = ? WHERE slug = ?",
-                (tipo, slug),
+                "UPDATE entidades SET tipo_lugar = ? WHERE slug = ?", (tipo, slug)
             )
-        current = self.get_scene().get("location")
-        if not current or acto in _MOVE_ACTOS:
+        if not self.get_scene().get("location") or movimiento:
             self._set_scene(location=slug)
 
-    def _nudge_tone(self, acto: str, tags: Any) -> None:
-        tagset = {
-            _ascii_slug(t)
-            for t in (tags if isinstance(tags, list) else [])
-            if isinstance(t, str)
-        }
-        for slug, _tag in (
-            (r["slug"], r["tag"])
-            for r in self.conn.execute("SELECT slug, tag FROM tags")
-        ):
-            if slug.startswith("npc."):
-                tagset.add(_tag)
-        scene = self.get_scene()
-        tropo = scene.get("tropo") or ""
-        atmo = scene.get("atmosfera") or ""
-        body = bool(tagset & _BODY_TAGS)
-        if body and atmo in ("", "laboral", "fria", "aburrida", "monotona"):
-            if self._exists_id("atmosferas", "erotica"):
-                self._set_scene(atmosfera="erotica")
-        if body and (not tropo or tropo in _STALE_TROPO):
-            pick = "exposicion" if self._exists_id("tropos", "exposicion") else "seduccion"
-            if self._exists_id("tropos", pick):
-                self._set_scene(tropo=pick)
-        if acto in _CONTACT_ACTOS and (not tropo or tropo in _STALE_TROPO):
-            pick = _ACTO_TROPO.get(acto, "roce")
-            if self._exists_id("tropos", pick):
-                self._set_scene(tropo=pick)
-        if acto in _CONTACT_ACTOS and atmo in ("", "laboral", "fria"):
-            if self._exists_id("atmosferas", "erotica"):
-                self._set_scene(atmosfera="erotica")
+    # --- tono y tags ---
 
     def _apply_anchor(self, field: str, value: Any, table: str) -> None:
         if not isinstance(value, str) or not value.strip():
@@ -554,101 +580,43 @@ class Store:
         if self._exists_id(table, ident):
             self._set_scene(**{field: ident})
 
-    def _resolve_objetivo(self, token: str) -> str | None:
-        slug = _normalize_slug(token)
-        if slug and self._entity(slug):
-            return slug
-        row = self.conn.execute(
-            "SELECT slug FROM entidades WHERE lower(nombre) = lower(?)",
-            (token.strip(),),
-        ).fetchone()
-        return row["slug"] if row else None
-
-    def _tag_targets(self, objetivos: Any, nuevos: Any) -> list[str]:
-        slugs: list[str] = []
-        if isinstance(objetivos, list):
-            for token in objetivos:
-                if not isinstance(token, str):
-                    continue
-                found = self._resolve_objetivo(token)
-                if found and found not in slugs:
-                    slugs.append(found)
-        if isinstance(nuevos, list):
-            for item in nuevos:
-                if not isinstance(item, dict):
-                    continue
-                raw = item.get("slug")
-                if not isinstance(raw, str):
-                    continue
-                slug = _normalize_slug(raw)
-                if slug and self._entity(slug) and slug not in slugs:
-                    slugs.append(slug)
-        npcs = [s for s in slugs if s.startswith("npc.")]
-        if npcs:
-            return npcs[:1]
-        actors = [s for s in slugs if s.startswith(("pc.", "npc."))]
-        if actors:
-            return actors[:2]
-        pc = self.get_scene().get("pc")
-        return [pc] if pc else []
-
-    def _delta_targets(self, objetivos: Any) -> list[str]:
-        slugs: list[str] = []
-        if isinstance(objetivos, list):
-            for token in objetivos:
-                if not isinstance(token, str):
-                    continue
-                found = self._resolve_objetivo(token)
-                if found and found not in slugs:
-                    slugs.append(found)
-        actors = [s for s in slugs if s.startswith(("pc.", "npc."))]
-        if actors:
-            return actors[:2]
-        pc = self.get_scene().get("pc")
-        return [pc] if pc else []
-
-    def _apply_deltas(self, deltas: Any, objetivos: Any) -> None:
-        if not isinstance(deltas, dict):
-            return
-        targets = self._delta_targets(objetivos)
-        for slug in targets:
-            if not self._nucleo(slug):
-                self.conn.execute(
-                    "INSERT OR IGNORE INTO nucleo (slug) VALUES (?)", (slug,)
-                )
-            current = self._nucleo(slug) or {
-                "afinidad": 0.5,
-                "dominancia": 0.5,
-                "estres": 0.0,
-            }
-            updates: dict[str, float] = {}
-            for key in CORE_KEYS:
-                if key not in deltas:
-                    continue
-                try:
-                    delta = float(deltas[key])
-                except (TypeError, ValueError):
-                    continue
-                delta = max(-_DELTA_CAP, min(_DELTA_CAP, delta))
-                updates[key] = _clamp01(float(current[key]) + delta)
-            if updates:
-                cols = ", ".join(f"{k} = ?" for k in updates)
-                self.conn.execute(
-                    f"UPDATE nucleo SET {cols} WHERE slug = ?",
-                    [*updates.values(), slug],
-                )
-
-    def _apply_tags(
-        self,
-        tags: Any,
-        objetivos: Any,
-        nuevos: Any = None,
-        acto: str = "",
+    def _derivar_tono(
+        self, objetivos: list[str], resoluciones: list[dict[str, Any]]
     ) -> None:
-        if not isinstance(tags, list):
-            return
-        targets = self._tag_targets(objetivos, nuevos)
-        if not targets:
+        """La atmósfera sigue lo que pasó, no el gusto del modelo."""
+        atmo_cand: tuple[str, ...] = ()
+        tropo_cand: tuple[str, ...] = ()
+        for res in resoluciones:
+            par = mente.TONO_DESENLACE.get(res["desenlace"])
+            if par:
+                atmo_cand, tropo_cand = par
+                break
+        if not atmo_cand:
+            for res in resoluciones:
+                # ceder a un acto que no toca a nadie no vuelve erótica la escena
+                if res["impulso"] in ("ceder", "dominar") and not res["invasivo"]:
+                    continue
+                par = mente.TONO_IMPULSO.get(res["impulso"])
+                if par and par[0]:
+                    atmo_cand, tropo_cand = par
+                    break
+        if not atmo_cand:
+            mejor = ("", 0.0)
+            for slug in objetivos:
+                eje, desvio = mente.dominante(self._estado(slug))
+                if eje and desvio > mejor[1]:
+                    mejor = (eje, desvio)
+            if mejor[0] and mejor[1] >= 0.15:
+                atmo_cand, tropo_cand = mente.TONO_ESTADO.get(mejor[0], ((), ()))
+        atmo = self._primero_que_exista("atmosferas", atmo_cand)
+        tropo = self._primero_que_exista("tropos", tropo_cand)
+        if atmo:
+            self._set_scene(atmosfera=atmo)
+        if tropo:
+            self._set_scene(tropo=tropo)
+
+    def _apply_tags(self, tags: Any, objetivos: list[str]) -> None:
+        if not isinstance(tags, list) or not objetivos:
             return
         added = 0
         for raw in tags:
@@ -660,166 +628,14 @@ class Store:
             if not tag:
                 continue
             origen = "catalogo" if self._exists_id("tropos", tag) else "fuzzy"
-            for slug in targets:
-                if tag in _BODY_TAGS and acto not in _STRIP_ACTOS:
-                    if tag not in self._tags_of(slug):
-                        continue
-                if tag in _BODY_TAGS and self._stance(slug) == "hostil":
-                    continue
+            for slug in objetivos:
                 self.conn.execute(
                     "INSERT OR IGNORE INTO tags (slug, tag, origen) VALUES (?, ?, ?)",
                     (slug, tag, origen),
                 )
             added += 1
-        for slug in targets:
-            self._strip_hostile_body(slug)
 
-    def _tipo_of(self, slug: str | None) -> str:
-        ent = self._entity(slug)
-        if not ent:
-            return ""
-        return ent.get("tipo_personaje") or ""
-
-    def _stance(self, slug: str) -> str:
-        tipo = self._tipo_of(slug)
-        tags = set(self._tags_of(slug))
-        nuc = self._nucleo(slug) or {}
-        afin = float(nuc.get("afinidad") or 0.5)
-        if tags & _HOSTILE_TAGS:
-            if afin >= 0.8:
-                return "abierta"
-            return "hostil"
-        if tipo in _HOSTILE_TIPOS:
-            if afin >= 0.75:
-                return "abierta"
-            return "hostil"
-        if tipo in _OPEN_TIPOS and afin >= 0.45:
-            return "abierta"
-        if afin < 0.35:
-            return "hostil"
-        if afin >= 0.6:
-            return "abierta"
-        return "neutra"
-
-    def _any_hostile(self, objetivos: Any) -> bool:
-        for slug in self._delta_targets(objetivos):
-            if slug.startswith("npc.") and self._stance(slug) == "hostil":
-                return True
-        return False
-
-    def _filter_deltas(self, deltas: Any, objetivos: Any) -> Any:
-        if not isinstance(deltas, dict):
-            return deltas
-        if not self._any_hostile(objetivos):
-            return deltas
-        out = dict(deltas)
-        try:
-            af = float(out.get("afinidad", 0))
-        except (TypeError, ValueError):
-            af = 0.0
-        if af > 0:
-            out["afinidad"] = -min(af, _DELTA_CAP)
-        return out
-
-    def _strip_hostile_body(self, slug: str) -> None:
-        if not slug.startswith("npc.") or self._stance(slug) != "hostil":
-            return
-        for tag in self._tags_of(slug):
-            if tag in _BODY_TAGS:
-                self.conn.execute(
-                    "DELETE FROM tags WHERE slug = ? AND tag = ?",
-                    (slug, tag),
-                )
-
-    def _apply_player_stance(self, player: str, intent: dict[str, Any]) -> None:
-        low = (player or "").lower()
-        marks = (
-            "desprec",
-            "odio",
-            "hostil",
-            "asco",
-            "pelea",
-            "golpe",
-            "violencia",
-        )
-        if not any(w in low for w in marks):
-            return
-        targets = self._tag_targets(intent.get("objetivos"), intent.get("nuevos"))
-        for slug in targets:
-            if not slug.startswith("npc."):
-                continue
-            self.conn.execute(
-                "INSERT OR IGNORE INTO tags (slug, tag, origen) VALUES (?, ?, ?)",
-                (slug, "desprecia", "fuzzy"),
-            )
-            self._apply_deltas({"afinidad": -0.1, "estres": 0.08}, [slug])
-            self._strip_hostile_body(slug)
-
-    def _set_foco(self, intent: dict[str, Any]) -> None:
-        targets = self._tag_targets(intent.get("objetivos"), intent.get("nuevos"))
-        npcs = [s for s in targets if s.startswith("npc.")]
-        if npcs:
-            self._meta_set("foco", npcs[0])
-        slim = {
-            "acto": intent.get("acto"),
-            "objetivos": intent.get("objetivos"),
-            "deltas": intent.get("deltas"),
-            "tags": intent.get("tags"),
-        }
-        self._meta_set("last_intent", slim)
-
-    def patch_intent(self, player: str, intent: dict[str, Any]) -> dict[str, Any]:
-        last = self.last_intent or self._meta_json("last_intent", None)
-        if not isinstance(last, dict):
-            return intent
-        if not _CORRECTION_RE.search(player or ""):
-            return intent
-        patched = dict(intent)
-        acto = _ascii_slug(intent.get("acto") or "")
-        last_acto = last.get("acto") if isinstance(last.get("acto"), str) else ""
-        if acto in ("observar", "mirar", "decir", "hablar", "") and last_acto:
-            patched["acto"] = last_acto
-        return patched
-
-    def flush_journal(
-        self,
-        player: str,
-        intent: dict[str, Any],
-        prose: str,
-    ) -> None:
-        path = self.path.with_name(self.path.stem + ".journal.txt")
-        scene = self.get_scene()
-        turn = scene.get("time_value") or 0
-        reacciones = self._npc_reactions(intent)
-        reacc = "; ".join(
-            f"{r['nombre']}: {r['reaccion']}" for r in reacciones
-        )
-        who = intent.get("objetivos") or []
-        block = (
-            f"=== turno {turn} ===\n"
-            f"jugador: {(player or '').strip()}\n"
-            f"acto: {intent.get('acto')} -> {who}\n"
-            f"reaccion: {reacc or '(nadie)'}\n"
-            f"{(prose or '').strip()}\n\n"
-        )
-        with path.open("a", encoding="utf-8") as f:
-            f.write(block)
-
-    def _familia_de(self, empuje_id: str) -> str | None:
-        row = self.conn.execute(
-            "SELECT familia FROM empujes WHERE id = ?", (empuje_id,)
-        ).fetchone()
-        if row and row["familia"]:
-            return row["familia"]
-        return None
-
-    def _empuje_de(self, table: str, ident: str) -> str | None:
-        row = self.conn.execute(
-            f"SELECT empuje FROM {table} WHERE id = ?", (ident,)
-        ).fetchone()
-        if row and row["empuje"]:
-            return row["empuje"]
-        return None
+    # --- historia y hechos ---
 
     def _meta_json(self, clave: str, default: Any) -> Any:
         row = self.conn.execute(
@@ -839,101 +655,60 @@ class Store:
             (clave, json.dumps(value, ensure_ascii=False)),
         )
 
-    def _hechos(self) -> list[str]:
-        raw = self._meta_json("hechos", [])
-        return raw if isinstance(raw, list) else []
+    def _anotar_eventos(
+        self, intent: dict[str, Any], resoluciones: list[dict[str, Any]]
+    ) -> None:
+        turno = self.get_scene().get("time_value") or 0
+        acto = intent.get("acto") or "actúa"
+        for res in resoluciones:
+            if res["desenlace"] == "ocurre" and res["impulso"] in ("ceder", "dominar"):
+                continue
+            texto = f"{acto}: {res['reaccion']}; {res['efecto']}"
+            self.conn.execute(
+                "INSERT INTO eventos (turno, slug, texto) VALUES (?, ?, ?)",
+                (turno, res["slug"], texto),
+            )
 
-    def _record_hechos(self, acto: str, intent: dict[str, Any]) -> None:
-        hechos = self._hechos()
-        names: list[str] = []
-        if isinstance(intent.get("objetivos"), list):
-            for token in intent["objetivos"]:
-                if not isinstance(token, str):
-                    continue
-                slug = self._resolve_objetivo(token)
-                ent = self._entity(slug) if slug else None
-                if ent:
-                    names.append(ent["nombre"])
-        who = names[0] if names else ""
-        if acto and who:
-            hechos.append(f"Tú: {acto} → {who}.")
+    def hechos(self) -> list[str]:
+        """Hechos vigentes, derivados del estado. No es un historial que se pudra."""
+        out: list[str] = []
+        pc = self.get_scene().get("pc")
+        for slug in self.npcs():
+            ent = self._entity(slug) or {}
+            nombre = ent.get("nombre") or slug
+            tags = self._tags_of(slug)
+            if tags:
+                out.append(f"{nombre}: {', '.join(tags)}.")
+            if pc:
+                v = self._vinculo(slug, pc)
+                fuertes = [f"{eje} {v[eje]:.2f}" for eje in mente.VINCULO if v[eje] >= 0.5]
+                if fuertes:
+                    out.append(f"{nombre} siente por ti: {', '.join(fuertes)}.")
+            estado = mente.resumen_estado(self._estado(slug))
+            if estado != "en calma":
+                out.append(f"{nombre} está: {estado}.")
         for row in self.conn.execute(
-            "SELECT e.nombre, t.tag FROM tags t "
-            "JOIN entidades e ON e.slug = t.slug WHERE e.clase = 'npc'"
+            "SELECT e.texto, n.nombre FROM eventos e "
+            "LEFT JOIN entidades n ON n.slug = e.slug "
+            "ORDER BY e.id DESC LIMIT ?",
+            (MAX_EVENTOS,),
         ):
-            if row["tag"] in _BODY_TAGS:
-                hechos.append(f"{row['nombre']}: {row['tag']}.")
-        # unique, keep last
-        seen: set[str] = set()
-        uniq: list[str] = []
-        for h in hechos:
-            if h in seen:
-                continue
-            seen.add(h)
-            uniq.append(h)
-        self._meta_set("hechos", uniq[-_HECHOS_MAX:])
-
-    def _npc_reactions(self, intent: dict[str, Any]) -> list[dict[str, str]]:
-        acto = _ascii_slug(intent.get("acto") or "")
-        out: list[dict[str, str]] = []
-        targets = self._tag_targets(intent.get("objetivos"), intent.get("nuevos"))
-        for slug in targets:
-            if not slug.startswith("npc."):
-                continue
-            ent = self._entity(slug)
-            if not ent:
-                continue
-            stance = self._stance(slug)
-            tags = set(self._tags_of(slug))
-            naked = bool(tags & _BODY_TAGS)
-            if stance == "hostil":
-                if acto in _CONTACT_ACTOS:
-                    text = (
-                        "se aparta de golpe; empuja, muerde o golpea; "
-                        "no cede la boca ni el cuerpo"
-                    )
-                elif acto in _EXHIBIT_ACTOS:
-                    text = (
-                        "asco y desprecio; se burla o amenaza; "
-                        "no juega el mismo juego"
-                    )
-                elif acto in _MOVE_ACTOS:
-                    text = "no te recibe; da un paso atras o te corta el paso"
-                elif acto in {"observar", "mirar"}:
-                    text = (
-                        "sostiene la mirada con odio; no se cubre de deseo, "
-                        "se cubre de desprecio"
-                    )
-                else:
-                    text = "se opone; no se deja llevar"
-            elif stance == "abierta":
-                if acto in _CONTACT_ACTOS:
-                    text = "cede al contacto; el cuerpo responde, no se aparta"
-                elif acto in {"observar", "mirar"}:
-                    if naked:
-                        text = "sostiene la mirada; no se cubre; se sabe vista"
-                    else:
-                        text = "nota que la miras y no desvia del todo"
-                elif acto in _MOVE_ACTOS:
-                    text = "no retrocede; espera a que llegues"
-                elif acto in {"hablar", "decir"}:
-                    text = "contesta; la voz le sale mas baja o mas corta"
-                else:
-                    text = "reacciona: un gesto, no un adorno"
-            else:
-                if acto in _CONTACT_ACTOS:
-                    text = (
-                        "se queda helada; no corresponde; "
-                        "aun no empuja pero tampoco cede"
-                    )
-                elif acto in {"observar", "mirar"}:
-                    text = "nota la mirada y no sabe que hacer con ella"
-                elif acto in _MOVE_ACTOS:
-                    text = "duda; no se acerca ni se va"
-                else:
-                    text = "reacciona poco; no se entrega"
-            out.append({"nombre": ent["nombre"], "reaccion": text})
+            out.append(f"Pasó con {row['nombre']}: {row['texto']}")
         return out
+
+    # --- etapa 2 ---
+
+    def _familia_de(self, empuje_id: str) -> str | None:
+        row = self.conn.execute(
+            "SELECT familia FROM empujes WHERE id = ?", (empuje_id,)
+        ).fetchone()
+        return row["familia"] if row and row["familia"] else None
+
+    def _empuje_de(self, table: str, ident: str) -> str | None:
+        row = self.conn.execute(
+            f"SELECT empuje FROM {table} WHERE id = ?", (ident,)
+        ).fetchone()
+        return row["empuje"] if row and row["empuje"] else None
 
     def active_anchors(self) -> list[tuple[str, str]]:
         scene = self.get_scene()
@@ -959,18 +734,11 @@ class Store:
             fam = self._familia_de(emp) if emp else None
             if fam:
                 out.append(("cruce", f"{loc['tipo_lugar']}+{fam}"))
-        pc = self._entity(scene.get("pc"))
-        npcs = list(
-            self.conn.execute(
-                "SELECT tipo_personaje FROM entidades "
-                "WHERE clase = 'npc' AND tipo_personaje IS NOT NULL"
-            )
-        )
-        if npcs:
-            for row in npcs:
-                out.append(("tipo_personaje", row["tipo_personaje"]))
-        elif pc and pc.get("tipo_personaje"):
-            out.append(("tipo_personaje", pc["tipo_personaje"]))
+        for row in self.conn.execute(
+            "SELECT tipo_personaje FROM entidades "
+            "WHERE clase = 'npc' AND tipo_personaje IS NOT NULL"
+        ):
+            out.append(("tipo_personaje", row["tipo_personaje"]))
         if not out:
             out.append(("prosa", "saludo"))
         seen: set[tuple[str, str]] = set()
@@ -981,13 +749,7 @@ class Store:
                 uniq.append(pair)
         return uniq
 
-    def sample_frases(
-        self,
-        n: int = SAMPLE_FRASES,
-        acto: str = "",
-        naked: bool = False,
-        hostile: bool = False,
-    ) -> list[dict[str, str]]:
+    def sample_frases(self, n: int = SAMPLE_FRASES) -> list[dict[str, str]]:
         anchors = self.active_anchors()
         if not anchors:
             return []
@@ -1003,24 +765,11 @@ class Store:
             [*flat, n * 6],
         ).fetchall()
         used = {str(x).lower() for x in self._meta_json("frases_usadas", [])}
-        forbid = []
-        if naked:
-            forbid.extend(_ROPA_WORDS)
-        if acto in _CONTACT_ACTOS:
-            forbid.extend(_NO_CONTACT_WORDS)
-        if hostile:
-            forbid.extend(
-                ("cede", "disfruta", "se entrega", "no se aparta", "invitación")
-            )
         picked: list[dict[str, str]] = []
         ambient = 0
         for r in rows:
             item = dict(r)
-            text = item["texto"]
-            low = text.lower()
-            if low in used:
-                continue
-            if any(w in low for w in forbid):
+            if item["texto"].lower() in used:
                 continue
             is_amb = item["clase"] in ("ambiente", "fragmento") or item[
                 "ancla_tipo"
@@ -1037,42 +786,50 @@ class Store:
 
     def narration_packet(self, player: str, intent: dict[str, Any]) -> str:
         scene = self.get_scene()
-        pc_slug = scene.get("pc")
-        loc_slug = scene.get("location")
-        pc = self._entity(pc_slug)
-        loc = self._entity(loc_slug)
-        others = []
-        naked = False
-        for row in self.conn.execute(
-            "SELECT slug, nombre, tipo_personaje FROM entidades WHERE clase = 'npc'"
-        ):
-            tags = self._tags_of(row["slug"])
-            if set(tags) & _BODY_TAGS:
-                naked = True
-            others.append(
+        pc = self._entity(scene.get("pc"))
+        loc = self._entity(scene.get("location"))
+        resoluciones = self.last_resolucion
+        implicados = {r["slug"] for r in resoluciones}
+        otros = []
+        for slug in self.npcs():
+            if slug in implicados:
+                continue
+            ent = self._entity(slug) or {}
+            otros.append(
                 {
-                    "nombre": row["nombre"],
-                    "tipo": row["tipo_personaje"],
-                    "postura": self._stance(row["slug"]),
-                    "nucleo": self._nucleo(row["slug"]),
-                    "tags": tags,
+                    "nombre": ent.get("nombre"),
+                    "estado": mente.resumen_estado(self._estado(slug)),
+                    "tags": self._tags_of(slug),
                 }
             )
-        acto = _ascii_slug(intent.get("acto") or "")
-        reacciones = self._npc_reactions(intent)
-        hechos = self._hechos()
-        hostile = any(
-            r["reaccion"].startswith("se aparta")
-            or "desprecio" in r["reaccion"]
-            or "se opone" in r["reaccion"]
-            or "asco" in r["reaccion"]
-            for r in reacciones
-        )
+        canon = []
+        prohibido: list[str] = []
+        for r in resoluciones:
+            consent = ""
+            if r["invasivo"]:
+                consent = f" Consentido: {'sí' if r['consentido'] else 'NO'}."
+            canon.append(
+                f"- {r['nombre']}: {r['reaccion']}. {r['efecto']}.{consent} "
+                f"Estado: {mente.resumen_estado(r['estado'])}. "
+                f"Siente por ti: {mente.resumen_vinculo(r['vinculo'])}."
+            )
+            if r["invasivo"] and not r["consentido"]:
+                prohibido.append(
+                    f"{r['nombre']} NO consiente: prohibido escribir que cede, "
+                    "disfruta, se entrega o provoca."
+                )
+            if r["desenlace"] in ("forcejeo", "bloqueado"):
+                prohibido.append(
+                    f"El acto contra {r['nombre']} no se completó: narralo trunco."
+                )
+            if r["desenlace"] == "forzado":
+                prohibido.append(
+                    f"Lo de {r['nombre']} es violencia, no sexo: sin erotismo."
+                )
+        if not prohibido:
+            prohibido.append("Nada que contradiga el canon de arriba.")
         pack = {
-            "tu": {
-                "nombre": pc["nombre"] if pc else "Jugador",
-                "nucleo": self._nucleo(pc_slug),
-            },
+            "tu": {"nombre": pc["nombre"] if pc else "Jugador"},
             "lugar": {
                 "nombre": loc["nombre"] if loc else None,
                 "tipo": loc["tipo_lugar"] if loc else None,
@@ -1080,30 +837,26 @@ class Store:
             "atmosfera": scene.get("atmosfera"),
             "tropo": scene.get("tropo"),
             "acto": intent.get("acto"),
-            "hechos": hechos,
-            "reacciones": reacciones,
-            "otros": others,
+            "otros_presentes": otros,
+            "hechos": self.hechos(),
         }
-        frases = self.sample_frases(acto=acto, naked=naked, hostile=hostile)
-        reacc_txt = (
-            "; ".join(f"{r['nombre']}: {r['reaccion']}" for r in reacciones)
-            or "(nadie más en el acto)"
-        )
+        frases = self.sample_frases()
         lines = [
-            f"HECHO DEL TURNO: tú {intent.get('acto') or 'actuás'}.",
-            f"REACCIONES (canon): {reacc_txt}",
-            f"HECHOS QUE SIGUEN: {'; '.join(hechos) if hechos else '(ninguno aún)'}",
+            f"ACTO DEL JUGADOR: {intent.get('acto') or 'actúa'}.",
+            "CANON DEL MOTOR (manda sobre todo lo demás):",
+            *(canon or ["- (nadie más implicado)"]),
+            "PROHIBIDO:",
+            *[f"- {p}" for p in prohibido],
             "",
-            f"Acción del jugador (ya pasó, narrala, no la niegues):\n{player}",
+            f"Lo que escribió el jugador (reescribilo en segunda persona):\n{player}",
             "",
             "Estado:",
             json.dumps(pack, ensure_ascii=False, indent=2),
             "",
-            "Condimento (recortar; no pegar si choca con el hecho):",
+            "Condimento (recortar; descartar lo que choque con el canon):",
         ]
         if frases:
-            for f in frases:
-                lines.append(f"- ({f['clase']}) {f['texto']}")
+            lines.extend(f"- ({f['clase']}) {f['texto']}" for f in frases)
         else:
             lines.append("- (fragmento) El sitio es el que dice el estado.")
         return "\n".join(lines)
@@ -1111,5 +864,26 @@ class Store:
     def append_prose(self, text: str) -> None:
         self.conn.execute("INSERT INTO prosa (texto) VALUES (?)", (text,))
         used = [str(x) for x in self._meta_json("frases_usadas", [])]
-        used.extend(getattr(self, "_last_sampled", []))
+        used.extend(self._last_sampled)
         self._meta_set("frases_usadas", used[-_USADAS_MAX:])
+
+    def flush_journal(
+        self, player: str, intent: dict[str, Any], prose: str
+    ) -> None:
+        """Log humano, fuera de la base. Se escribe después del commit."""
+        path = self.path.with_name(self.path.stem + ".journal.txt")
+        turno = self.get_scene().get("time_value") or 0
+        lines = [
+            f"=== turno {turno:g} ===",
+            f"jugador: {(player or '').strip()}",
+            f"acto: {intent.get('acto')} -> {intent.get('objetivos') or []}",
+        ]
+        for r in self.last_resolucion:
+            lines.append(
+                f"{r['nombre']}: {r['impulso']}/{r['desenlace']} "
+                f"({r['reaccion']}) | {mente.resumen_estado(r['estado'])}"
+            )
+        lines.append((prose or "").strip())
+        lines.append("")
+        with path.open("a", encoding="utf-8") as f:
+            f.write("\n".join(lines) + "\n")

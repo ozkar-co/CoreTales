@@ -66,11 +66,30 @@ CREATE TABLE IF NOT EXISTS entidades (
     tipo_personaje TEXT,
     tipo_lugar TEXT
 );
-CREATE TABLE IF NOT EXISTS nucleo (
-    slug TEXT PRIMARY KEY,
-    afinidad REAL NOT NULL DEFAULT 0.5,
-    dominancia REAL NOT NULL DEFAULT 0.5,
-    estres REAL NOT NULL DEFAULT 0.0
+CREATE TABLE IF NOT EXISTS rasgos (
+    slug TEXT NOT NULL,
+    rasgo TEXT NOT NULL,
+    valor REAL NOT NULL DEFAULT 0.5,
+    PRIMARY KEY (slug, rasgo)
+);
+CREATE TABLE IF NOT EXISTS estado (
+    slug TEXT NOT NULL,
+    eje TEXT NOT NULL,
+    valor REAL NOT NULL DEFAULT 0.0,
+    PRIMARY KEY (slug, eje)
+);
+CREATE TABLE IF NOT EXISTS vinculos (
+    origen TEXT NOT NULL,
+    destino TEXT NOT NULL,
+    eje TEXT NOT NULL,
+    valor REAL NOT NULL DEFAULT 0.0,
+    PRIMARY KEY (origen, destino, eje)
+);
+CREATE TABLE IF NOT EXISTS eventos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    turno REAL NOT NULL DEFAULT 0,
+    slug TEXT NOT NULL,
+    texto TEXT NOT NULL
 );
 CREATE TABLE IF NOT EXISTS tags (
     slug TEXT NOT NULL,
@@ -104,4 +123,4 @@ SLUG_PREFIX = ("pc.", "npc.", "loc.")
 MAX_NUEVOS = 4
 MAX_TAGS = 6
 SAMPLE_FRASES = 6
-CORE_KEYS = ("afinidad", "dominancia", "estres")
+MAX_EVENTOS = 12

@@ -29,16 +29,16 @@ Dos usos, el mismo núcleo:
 ### Ciclo de dos etapas
 
 ```
-jugador → [1. traducir] → JSON (intención, entidades, deltas)
-         → motor (aplicar, umbrales, máscara, átomos)
+jugador → [1. traducir] → JSON (intención, entidades, valoración del acto)
+         → motor (impactar ejes, resolver desenlace, umbrales, máscara, átomos)
          → [2. narrar] → prosa
 ```
 
-1. **Traducción (input).** El jugador escribe cualquier cosa. El LLM **no narra**. Devuelve un JSON chico: acto, entidades afectadas, deltas propuestos, tags nuevas. Schema estricto. Si el JSON falla: un reintento; si otra vez, se informa y el turno no escribe.
+1. **Traducción (input).** El jugador escribe cualquier cosa. El LLM **no narra** y no decide qué pasa. Devuelve un JSON chico: acto, entidades afectadas, **valoración** del acto en ejes generales (intensidad, intimidad, agresión, exposición, afecto, dominio), tags nuevas y, para quien aparece por primera vez, el perfil que se pueda inferir del texto. Schema estricto. Si el JSON falla: un reintento; si otra vez, se informa y el turno no escribe.
 
-2. **Resolución.** El motor valida forma y rangos, aplica el núcleo (con topes), apila tags, actualiza vectores de género, puede avanzar un beat, elige máscara y átomos. Copia de trabajo; commit al cerrar con éxito.
+2. **Resolución.** El motor traduce esa valoración a movimiento de ejes según el vínculo (el mismo acto agrada o repugna según quién lo recibe), puntúa los impulsos posibles, elige el que gana y decide si el acto se completa. Apila tags, actualiza vectores de género, puede avanzar un beat, elige máscara y átomos. Copia de trabajo; commit al cerrar con éxito.
 
-3. **Narración (output).** Prompt rígido: quién / dónde / cuándo, núcleo, máscara, tags relevantes, resumen, beat. El LLM viste. No recibe la novela ni permiso para reescribir números.
+3. **Narración (output).** Prompt rígido: quién / dónde / cuándo, canon del motor (reacción y desenlace), tags relevantes, resumen, beat. El LLM viste. No recibe la novela ni permiso para reescribir números, ni para contradecir el canon.
 
 El adapter sigue siendo `complete(system, user) -> str`. Cambian los prompts (traducir vs narrar), no el puerto. Backends: llama.cpp (HTTP local) u OpenAI. `.env` solo para secretos (`OPENAI_API_KEY`). `CORE_TALES_LLM=openai|llamacpp` fuerza el vendor; si no, OpenAI cuando hay clave.
 
@@ -46,18 +46,23 @@ Prefijo de reglas cacheable en llama.cpp (slot de partida). `test_llm` usa otro 
 
 ### Entidad: núcleo y máscara
 
-Cada actor (PC, NPC) tiene:
+Los ejes son fijos y generales (los define `src/mente.py`), pensados para servir a cualquier escena sin programar comportamientos uno por uno. Cada actor (PC, NPC) tiene:
 
-- **Núcleo.** Dimensiones del motor, persistentes: al menos afinidad, dominancia, estrés (escala 0–1). El motor las incrementa o recorta; el LLM no hace `set` libre sobre ellas.
-- **Máscara.** Arquetipo inyectado según el vector de género dominante. Cambia; el núcleo no.
+- **Estado.** Lo volátil, como niveles químicos: excitación, enojo, miedo, estrés, dolor, vergüenza, confianza, energía (0–1). Sube por lo que pasa y vuelve al reposo con los turnos.
+- **Rasgos.** Lo fijo: valentía, dominancia, impulsividad, moral, fuerza, inteligencia, apariencia, sociabilidad. No cambian salvo evento canónico grande. No crean conducta por sí solos: multiplican la tensión que ya existe (sin ira no se pega).
+- **Vínculos.** Dirigidos, uno por par: afecto, odio, respeto, miedo, deseo. De aquí sale si un acercamiento agrada o repugna.
+- **Máscara.** Arquetipo inyectado según el vector de género dominante. Cambia; los ejes no.
 - **Tags.** Lista plana (`fobia_gatos`, …). La etapa 1 puede proponer; el motor apila y reinyecta.
-- **Datos de ficha.** Nombre, slug, lo que el mundo necesite. JSON flexible alrededor del núcleo, no en lugar del núcleo.
+- **Datos de ficha.** Nombre, slug, lo que el mundo necesite. JSON flexible alrededor de los ejes, no en lugar de los ejes.
+
+El motor puntúa siete impulsos (ceder, dominar, hablar, rechazar, agredir, huir, congelarse) y gana el más alto: una sola regla general en vez de un caso por situación. Después decide el desenlace del acto: `ocurre`, `forcejeo`, `forzado` o `bloqueado`. Solo un acto sobre el cuerpo se puede frenar; hablar o irse no se bloquean.
 
 Escena del motor: `pc`, `location`, `time` (value / unit / label). Quién, dónde y cuándo no los improvisa la prosa.
 
 ### Memoria
 
-- **Hechos / tags / núcleo:** canónicos.
+- **Hechos / tags / ejes:** canónicos. Los hechos se derivan del estado vigente, no son una lista que se acumula y se pudre.
+- **Eventos:** lo que dejó huella (un forcejeo, algo forzado) queda como historia de esa entidad.
 - **Resumen enrollable:** un párrafo que el motor regenera cada N turnos (o al pasar un beat). Se inyecta en ambas etapas, corto.
 - **Prosa:** log para mostrar el chat al reanudar. No se manda al LLM como memoria.
 
@@ -71,7 +76,7 @@ El motor guarda pesos (p. ej. mundano, misterio, amenaza). Las acciones mueven e
 
 ## Contrato de turno (forma, no el JSON final)
 
-La etapa 1 habla un JSON mínimo (intención + deltas + tags). La etapa 2 habla prosa. El motor no acepta que la etapa 1 narre ni que la etapa 2 envíe ops.
+La etapa 1 habla un JSON mínimo (intención + valoración + tags). La etapa 2 habla prosa. El motor no acepta que la etapa 1 narre ni que la etapa 2 envíe ops. La etapa 1 tampoco escribe emociones de nadie: solo valora el acto e infiere el perfil de quien nace.
 
 Claves JSON en inglés. Prosa en el idioma del jugador. Un reintento por JSON inválido; luego abortar e informar.
 

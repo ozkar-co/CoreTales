@@ -50,7 +50,7 @@ def _score_intent(data: dict[str, Any]) -> tuple[int, int, int, int]:
     has_nuevos = isinstance(data.get("nuevos"), list)
     extra = sum(
         1
-        for k in ("deltas", "tags", "lugar", "atmosfera", "tropo")
+        for k in ("valoracion", "tags", "lugar", "atmosfera", "tropo")
         if data.get(k) not in (None, "", [], {})
     )
     return (int(has_acto), int(has_obj), int(has_nuevos), extra)

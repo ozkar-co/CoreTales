@@ -31,6 +31,8 @@ def _looks_stub(data: dict[str, Any]) -> bool:
     acto = data.get("acto")
     if not isinstance(acto, str) or not acto.strip():
         return True
+    if not isinstance(data.get("valoracion"), dict) or not data["valoracion"]:
+        return True
     blob = json.dumps(data, ensure_ascii=False).lower()
     return any(s in blob for s in _STUBS)
 
@@ -67,18 +69,39 @@ class Engine:
     ) -> None:
         self.llm = llm
         self.store = store or Store(save_path or DEFAULT_SAVE)
+        self.last_intent: dict[str, Any] | None = None
+        self.last_pack: str = ""
 
-    def turn(self, player: str) -> str:
-        user = self.store.translate_packet(player)
-        intent = self._complete_intent(user)
-        intent = self.store.patch_intent(player, intent)
+    def turn(
+        self,
+        player: str,
+        intent: dict[str, Any] | None = None,
+        narrar: bool = True,
+    ) -> str:
+        """Un turno. Con `intent` dado se salta la etapa 1; con narrar=False, la 2."""
+        if intent is None:
+            intent = self._complete_intent(self.store.translate_packet(player))
+        self.last_intent = intent
         self.store.begin()
         try:
-            self.store.apply_intent(intent, player)
-            pack = self.store.narration_packet(player, intent)
-            prose = self._complete_prose(pack)
-            if not prose:
-                raise RuntimeError("prosa vacía")
+            resoluciones = self.store.apply_intent(intent, player)
+            _log_debug(
+                "motor",
+                json.dumps(
+                    [
+                        {k: r[k] for k in ("nombre", "impulso", "desenlace", "consentido")}
+                        for r in resoluciones
+                    ],
+                    ensure_ascii=False,
+                ),
+            )
+            self.last_pack = self.store.narration_packet(player, intent)
+            if narrar:
+                prose = self._complete_prose(self.last_pack)
+                if not prose:
+                    raise RuntimeError("prosa vacía")
+            else:
+                prose = ""
             self.store.append_prose(prose)
             self.store.commit()
         except Exception:

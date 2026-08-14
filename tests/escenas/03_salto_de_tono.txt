@@ -1,0 +1,16 @@
+# titulo: Salto de tono - erotico con Ivy, violento con la rival
+# Las dos estan en la misma oficina. Se busca ver que la atmosfera siga a quien
+# recibe el acto (erotica con Ivy, violenta u oscura con Vera) y que el estado
+# de una no contagie a la otra.
+> Estoy en la oficina con Ivy, mi amante desde hace semanas, y con Vera, que me odia desde el primer dia.
+= {"acto":"observar","objetivos":["npc.ivy"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.2,"intimidad":0.15,"agresion":0.0,"exposicion":0.1,"afecto":0.6,"dominio":0.1},"tags":[],"nuevos":[{"slug":"npc.ivy","nombre":"Ivy","tipo":"amante","rasgos":{"apariencia":0.85,"sociabilidad":0.7,"valentia":0.5},"estado":{"excitacion":0.3},"vinculo":{"afecto":0.75,"deseo":0.7,"respeto":0.6,"odio":0.0}},{"slug":"npc.vera","nombre":"Vera","tipo":"rival","rasgos":{"valentia":0.75,"dominancia":0.7,"impulsividad":0.5,"moral":0.65,"fuerza":0.55},"estado":{"enojo":0.4,"estres":0.35},"vinculo":{"odio":0.8,"afecto":0.0,"respeto":0.25,"miedo":0.05}}],"atmosfera":"laboral","tropo":"mirada"}
+> Beso a Ivy sin disimular.
+= {"acto":"besar","objetivos":["npc.ivy"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.6,"intimidad":0.8,"agresion":0.0,"exposicion":0.6,"afecto":0.7,"dominio":0.4},"tags":[],"nuevos":[],"atmosfera":"erotica","tropo":"seduccion"}
+> Me giro hacia Vera y le pongo la mano en la cintura, con Ivy mirando.
+= {"acto":"tocar","objetivos":["npc.vera"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.5,"intimidad":0.7,"agresion":0.1,"exposicion":0.7,"afecto":0.0,"dominio":0.7},"tags":["roce"],"nuevos":[],"atmosfera":"erotica","tropo":"roce"}
+> Vera me empuja y yo le devuelvo el empujon.
+= {"acto":"empujar","objetivos":["npc.vera"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.7,"intimidad":0.2,"agresion":0.8,"exposicion":0.6,"afecto":0.0,"dominio":0.6},"tags":[],"nuevos":[],"atmosfera":"violenta","tropo":"pelea"}
+> Vuelvo con Ivy y la abrazo como si nada hubiera pasado.
+= {"acto":"abrazar","objetivos":["npc.ivy"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.4,"intimidad":0.5,"agresion":0.0,"exposicion":0.4,"afecto":0.7,"dominio":0.2},"tags":[],"nuevos":[],"atmosfera":"erotica","tropo":"roce"}
+> Le pregunto a Vera si va a denunciarme.
+= {"acto":"hablar","objetivos":["npc.vera"],"movimiento":false,"lugar":"loc.oficina","valoracion":{"intensidad":0.4,"intimidad":0.1,"agresion":0.1,"exposicion":0.5,"afecto":0.0,"dominio":0.5},"tags":[],"nuevos":[],"atmosfera":"tensa","tropo":"amenaza_velada"}

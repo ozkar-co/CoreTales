@@ -136,3 +136,6 @@ fidelidad	Fidelidad	Se sostiene un pacto cuando sería más fácil no.	fidelidad
 obsesion	Obsesión	Un objeto, una persona, una idea no suelta.	obsesion
 esperanza	Esperanza	Todavía podría salir bien.	esperanza
 desesperacion	Desesperación	Ya no hay plan B.	desesperacion
+forcejeo	Forcejeo	Dos cuerpos empujan en contra; nadie cede todavía.	violencia
+pelea	Pelea	Se pasa del gesto al golpe.	violencia
+defensa	Defensa	Alguien se protege de lo que ya empezó.	violencia
