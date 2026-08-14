@@ -1,4 +1,4 @@
-"""Puerto de LLM. Un método. El núcleo no importa vendors."""
+"""Puerto de LLM. complete para una sola respuesta; chat para tools."""
 
 from __future__ import annotations
 
@@ -15,3 +15,12 @@ class LlmAdapter(Protocol):
         max_tokens: int = 512,
     ) -> str:
         """Una llamada síncrona. json_schema=None → prosa, no JSON mode."""
+
+    def chat(
+        self,
+        messages: list[dict[str, Any]],
+        tools: list[dict[str, Any]] | None = None,
+        temperature: float = 0.4,
+        max_tokens: int = 1200,
+    ) -> dict[str, Any]:
+        """Un paso del bucle. Devuelve content y/o tool_calls [{id,name,arguments}]."""

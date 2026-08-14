@@ -1,0 +1,7 @@
+# titulo: Hackers - cuarto oscuro
+> Estoy en un cuarto a oscuras con tres pantallas. Nia, mi companera, teclea a mi lado.
+> Intento entrar al servidor de la aseguradora. El firewall me corta.
+> Nia me pasa un exploit. Lo lanzo otra vez.
+> Estamos dentro. Bajo la base de clientes a un USB.
+> Suena un golpe en la puerta. Apago las pantallas y escondo el USB en la maceta.
+> Abro. Es el casero. Le digo que se corto la luz. Cierra y se va.

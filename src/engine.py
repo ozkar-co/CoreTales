@@ -1,4 +1,4 @@
-"""Ciclo de dos etapas: traducir → aplicar → muestrear → ensamblar."""
+"""Un turno: el modelo pide tools, el motor responde, decir cierra."""
 
 from __future__ import annotations
 
@@ -9,55 +9,21 @@ from pathlib import Path
 from typing import Any
 
 from adapter import LlmAdapter
-from adapters.schema import INTENT_SCHEMA
-from jsonutil import parse_intent
-from prompt import NARRATE_SYSTEM, RETRY_HINT, TRANSLATE_SYSTEM
+from prompt import SYSTEM
 from store import DEFAULT_SAVE, Store
+from tools import DEFINITIONS, ejecutar
 
-_STUBS = ("pc.nombre", "npc.nombre", "loc.lugar", "<id>")
+MAX_TOOLS = 20
 
 
 def _debug() -> bool:
     return os.environ.get("CORE_TALES_DEBUG", "").strip() not in ("", "0", "false")
 
 
-def _log_debug(title: str, body: str) -> None:
+def _log(title: str, body: str) -> None:
     if _debug():
         print(f"--- {title} ---", file=sys.stderr)
         print(body, file=sys.stderr)
-
-
-def _looks_stub(data: dict[str, Any]) -> bool:
-    acto = data.get("acto")
-    if not isinstance(acto, str) or not acto.strip():
-        return True
-    if not isinstance(data.get("valoracion"), dict) or not data["valoracion"]:
-        return True
-    blob = json.dumps(data, ensure_ascii=False).lower()
-    return any(s in blob for s in _STUBS)
-
-
-def _unwrap_prose(raw: str) -> str:
-    text = (raw or "").strip()
-    if text.startswith("```"):
-        text = text.strip("`")
-        if text.lower().startswith("json"):
-            text = text[4:]
-        text = text.strip()
-    if text.startswith("{"):
-        try:
-            data = json.loads(text)
-        except json.JSONDecodeError:
-            data = None
-        if isinstance(data, dict):
-            for key in ("narrative", "prosa", "texto"):
-                val = data.get(key)
-                if isinstance(val, str) and val.strip():
-                    return val.strip()
-    for prefix in ("Narrative:", "Prosa:", "Narrativa:"):
-        if text.lower().startswith(prefix.lower()):
-            text = text[len(prefix) :].strip()
-    return text
 
 
 class Engine:
@@ -69,88 +35,97 @@ class Engine:
     ) -> None:
         self.llm = llm
         self.store = store or Store(save_path or DEFAULT_SAVE)
-        self.last_intent: dict[str, Any] | None = None
-        self.last_pack: str = ""
+        self.trace: list[str] = []
 
-    def turn(
-        self,
-        player: str,
-        intent: dict[str, Any] | None = None,
-        narrar: bool = True,
-    ) -> str:
-        """Un turno. Con `intent` dado se salta la etapa 1; con narrar=False, la 2."""
-        if intent is None:
-            intent = self._complete_intent(self.store.translate_packet(player))
-        self.last_intent = intent
+    def _trazar(self, line: str) -> None:
+        self.trace.append(line)
+        _log("tool", line)
+
+    def turn(self, player: str) -> str:
+        self.trace = []
         self.store.begin()
         try:
-            resoluciones = self.store.apply_intent(intent, player)
-            _log_debug(
-                "motor",
-                json.dumps(
-                    [
-                        {k: r[k] for k in ("nombre", "impulso", "desenlace", "consentido")}
-                        for r in resoluciones
-                    ],
-                    ensure_ascii=False,
-                ),
-            )
-            self.last_pack = self.store.narration_packet(player, intent)
-            if narrar:
-                prose = self._complete_prose(self.last_pack)
-                if not prose:
-                    raise RuntimeError("prosa vacía")
-            else:
-                prose = ""
-            self.store.append_prose(prose)
+            prosa = self._ciclo(player)
+            self.store.avanzar_turno()
             self.store.commit()
+            self._journal(player, prosa)
+            return prosa
         except Exception:
             self.store.rollback()
             raise
-        self.store.flush_journal(player, intent, prose)
-        return prose
 
-    def _complete_intent(self, user: str) -> dict[str, Any]:
-        raw = self.llm.complete(
-            TRANSLATE_SYSTEM,
-            user,
-            json_schema=INTENT_SCHEMA,
-            temperature=0.3,
-            max_tokens=256,
-        )
-        _log_debug("etapa1", raw)
-        data = None
-        try:
-            data = parse_intent(raw)
-            if _looks_stub(data):
-                data = None
-        except (ValueError, json.JSONDecodeError):
-            data = None
-        if data is None:
-            raw = self.llm.complete(
-                TRANSLATE_SYSTEM,
-                user + "\n\n" + RETRY_HINT,
-                json_schema=INTENT_SCHEMA,
-                temperature=0.2,
-                max_tokens=256,
+    def _ciclo(self, player: str) -> str:
+        self.store.mutar_libre = False
+        messages: list[dict[str, Any]] = [
+            {"role": "system", "content": SYSTEM},
+            {
+                "role": "user",
+                "content": (
+                    f"Acción del jugador:\n{player}\n\n"
+                    "Usa aqui primero si no conoces el sitio. "
+                    "Cierra con decir."
+                ),
+            },
+        ]
+        prosa = ""
+        for _ in range(MAX_TOOLS):
+            resp = self.llm.chat(messages, tools=DEFINITIONS)
+            calls = resp.get("tool_calls") or []
+            content = (resp.get("content") or "").strip()
+            if not calls:
+                if content:
+                    prosa = content
+                    self._trazar("decir (texto libre)")
+                    break
+                continue
+            messages.append(
+                {
+                    "role": "assistant",
+                    "content": resp.get("content") or None,
+                    "tool_calls": [
+                        {
+                            "id": c["id"],
+                            "type": "function",
+                            "function": {
+                                "name": c["name"],
+                                "arguments": json.dumps(c["arguments"], ensure_ascii=False),
+                            },
+                        }
+                        for c in calls
+                    ],
+                }
             )
-            _log_debug("etapa1-reintento", raw)
-            try:
-                data = parse_intent(raw)
-            except (ValueError, json.JSONDecodeError) as e:
-                raise RuntimeError(f"JSON inválido tras reintento: {e}") from e
-            if _looks_stub(data):
-                raise RuntimeError("el modelo devolvió una plantilla, no una intención")
-        _log_debug("intencion", json.dumps(data, ensure_ascii=False, indent=2))
-        return data
+            for call in calls:
+                nombre = call["name"]
+                args = call.get("arguments") or {}
+                shown = dict(args)
+                if nombre == "decir" and "prosa" in shown:
+                    shown["prosa"] = "(…)"
+                self._trazar(f"{nombre} {json.dumps(shown, ensure_ascii=False)}")
+                try:
+                    result, maybe = ejecutar(self.store, nombre, args)
+                except Exception as e:
+                    result, maybe = f"error: {e}", None
+                    self._trazar(f"error {e}")
+                if maybe:
+                    prosa = maybe
+                messages.append(
+                    {
+                        "role": "tool",
+                        "tool_call_id": call["id"],
+                        "content": result[:4000],
+                    }
+                )
+            if prosa:
+                break
+        if not prosa:
+            prosa = "El turno se corta: no hubo desenlace."
+        return prosa.strip()
 
-    def _complete_prose(self, user: str) -> str:
-        raw = self.llm.complete(
-            NARRATE_SYSTEM,
-            user,
-            json_schema=None,
-            temperature=0.7,
-            max_tokens=400,
-        )
-        _log_debug("etapa2", f"{len(raw)} chars")
-        return _unwrap_prose(raw)
+    def _journal(self, player: str, prosa: str) -> None:
+        path = self.store.path.with_name(self.store.path.stem + ".journal.txt")
+        block = [f"> {player}", ""]
+        block.extend(f"--- {line}" for line in self.trace)
+        block += ["", prosa, "", ""]
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write("\n".join(block))

@@ -1,59 +1,34 @@
 # Banco de escenas
 
-No son tests unitarios y no pretenden pasar o fallar. Son partidas guionadas
-para **leer** cómo reacciona el motor mientras se desarrolla. Cuando jugando a
-mano aparece una situación interesante (o mal resuelta), se añade aquí y queda
-comparable en el tiempo.
+Inputs del jugador. No hay JSON. No pasan ni fallan: se leen.
 
 ```bash
-python3 tests/correr.py --seco        # solo motor, sin LLM ni coste
-python3 tests/correr.py              # ciclo completo (etapa 1 + etapa 2)
-python3 tests/correr.py 02_rival     # una escena por prefijo
+python3 tests/run.py
+python3 tests/run.py 18_mascota
 ```
 
-Cada corrida crea una partida nueva y deja en `tests/logs/`:
-
-- `<escena>_<fecha>.md`: por turno, la intención, el impacto en cada eje
-  (antes -> después), los puntajes de todos los impulsos, el desenlace, la
-  atmósfera derivada, el paquete que recibió la etapa 2 y la prosa.
-- `<escena>_<fecha>.sqlite`: la partida, para mirarla con `sqlite3`.
-
-## Formato de escena
-
-```
-# titulo: lo que se está probando
-> lo que escribe el jugador
-= {"acto": "...", "valoracion": {...}}
-```
-
-La línea `=` es la intención fija de ese turno. Sirve para el modo `--seco`:
-sin ella no hay nada que evaluar sin LLM. Con LLM se ignora, porque justamente
-lo que se quiere ver es qué intención produce la etapa 1.
-
-## Qué mirar en el log
-
-- **desenlace**: `ocurre`, `forcejeo`, `forzado` o `bloqueado`. Si un acto
-  invasivo sobre alguien hostil sale `ocurre` y consentido, el motor está
-  siendo complaciente.
-- **puntajes**: por qué ganó ese impulso. Si `ceder` gana con odio alto, los
-  pesos de `src/mente.py` están mal.
-- **estado / vínculo**: el acto tiene que mover ejes. Si no mueve nada, la
-  valoración de la etapa 1 vino en cero.
-- **paquete de la etapa 2**: si el canon dice `forcejeo` y la prosa narra
-  placer, el problema es del prompt, no del motor.
-- **presentes / llevas / fuera de escena**: el mundo. Si alguien te sigue al
-  cambiar de sitio sin ser objeto del acto, o un muerto reacciona, o el jugador
-  usa algo que no tiene, se rompió una primitiva.
+Cada corrida deja en `tests/logs/` un `.journal.txt` (input, tools, prosa) y un `.sqlite`.
 
 ## Escenas
 
-| escena | qué prueba |
+| | |
 | --- | --- |
-| `01_oficina_ivy` | abrir a alguien neutral lleva turnos; el primer toque no la hace ceder |
-| `02_rival_forcejeo` | odio alto + acto sexual = rechazo o violencia; límite entre forcejeo y forzado; secuelas |
-| `03_salto_de_tono` | la atmósfera sigue a quien recibe el acto; el estado de un NPC no contagia al otro |
-| `04_bosque_gnomos` | mundo sin relaciones: grupo de NPCs, muerte, cosas con dueño, moverse y dejar atrás lo del sitio anterior, descansar |
-
-La 04 también mide a la etapa 1: `fuera` (quién muere) y `dueno` (qué lleva el
-jugador) son decisiones de interpretación. Con `gpt-4o` salen; con `gpt-4o-mini`
-suelen faltar, y entonces el motor no puede saber que los gnomos murieron.
+| 01 oficina Ivy | 02 rival |
+| 03 salto de tono | 04 bosque |
+| 05 futurista | 06 postapo |
+| 07 erotico | 08 romantico |
+| 09 cyberpunk | 10 hackers |
+| 11 espias | 12 policial |
+| 13 investigativo | 14 recursos |
+| 15 politico | 16 campana / valle |
+| 17 villano | 18 mascota |
+| 19 horror | 20 western |
+| 21 nave | 22 mar |
+| 23 hospital | 24 juicio |
+| 25 cocina | 26 carcel |
+| 27 superheroe | 28 familia |
+| 29 magia | 30 deporte |
+| 31 escuela | 32 desierto |
+| 33 medieval | 34 comedia |
+| 35 tren | 36 huelga |
+| 37 isla | 38 burocracia |

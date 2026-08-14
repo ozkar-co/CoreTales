@@ -1,22 +1,10 @@
-# titulo: Bosque y gnomos - mundo, cosas y muerte
-# No es una escena de relaciones. Prueba las primitivas generales:
-# presencia por lugar, existencia (muerto/ausente), cosas con dueño (inventario)
-# y coste del acto en el jugador (pelear cansa, descansar recupera).
-# Lo que hay que mirar en el log: los gnomos no siguen al jugador fuera del bosque,
-# los muertos no reaccionan, mirar el inventario no le pasa a ningún NPC.
+# titulo: Bosque y gnomos
+# Mundo, cosas, muerte, moverse. Los muertos no siguen al jugador.
 > Estoy en un bosque frente a 5 gnomos, golpeo con mi espada a uno de ellos.
-= {"acto":"golpear","objetivos":["npc.gnomo"],"movimiento":false,"lugar":"loc.bosque","valoracion":{"intensidad":0.8,"intimidad":0.3,"agresion":0.9,"exposicion":0.4,"afecto":0.0,"dominio":0.7,"reposo":0.0},"tags":["herido"],"nuevos":[{"slug":"loc.bosque","nombre":"Bosque","tipo":"bosque"},{"slug":"npc.gnomo","nombre":"Gnomos","tipo":"antagonista","cantidad":5,"rasgos":{"fuerza":0.3,"valentia":0.45,"impulsividad":0.6},"vinculo":{"odio":0.5,"afecto":0.0}},{"slug":"obj.espada","nombre":"Espada","tipo":"arma","dueno":"pc.jugador"}],"atmosfera":"violenta","tropo":"pelea"}
 > Luego de matar a los gnomos con un poderoso hechizo necesito descansar.
-= {"acto":"lanzar_hechizo","objetivos":["npc.gnomo"],"movimiento":false,"lugar":"loc.bosque","valoracion":{"intensidad":1.0,"intimidad":0.2,"agresion":1.0,"exposicion":0.4,"afecto":0.0,"dominio":1.0,"reposo":0.0},"tags":[],"nuevos":[],"fuera":[{"slug":"npc.gnomo","existe":"muerto"}],"atmosfera":"violenta","tropo":"pelea"}
 > Me siento contra un árbol y descanso hasta recuperar el aliento.
-= {"acto":"descansar","objetivos":[],"movimiento":false,"lugar":"loc.bosque","valoracion":{"intensidad":0.1,"intimidad":0.0,"agresion":0.0,"exposicion":0.0,"afecto":0.0,"dominio":0.0,"reposo":0.9},"tags":[],"nuevos":[],"atmosfera":"sombria","tropo":"cotidiano"}
 > Miro a mi alrededor.
-= {"acto":"observar","objetivos":["loc.bosque"],"movimiento":false,"lugar":"loc.bosque","valoracion":{"intensidad":0.1,"intimidad":0.0,"agresion":0.0,"exposicion":0.0,"afecto":0.0,"dominio":0.0,"reposo":0.2},"tags":[],"nuevos":[],"atmosfera":"sombria","tropo":"cotidiano"}
 > Me adentro en el bosque.
-= {"acto":"ir","objetivos":["loc.espesura"],"movimiento":true,"lugar":"loc.espesura","valoracion":{"intensidad":0.3,"intimidad":0.0,"agresion":0.0,"exposicion":0.0,"afecto":0.0,"dominio":0.1,"reposo":0.0},"tags":[],"nuevos":[{"slug":"loc.espesura","nombre":"Espesura","tipo":"bosque"}],"atmosfera":"oscura","tropo":"cotidiano"}
 > Me dirijo al norte, uso mi brujula para ubicarme.
-= {"acto":"ir","objetivos":["loc.espesura"],"movimiento":false,"lugar":"loc.espesura","valoracion":{"intensidad":0.3,"intimidad":0.0,"agresion":0.0,"exposicion":0.0,"afecto":0.0,"dominio":0.1,"reposo":0.0},"tags":[],"nuevos":[{"slug":"obj.brujula","nombre":"Brujula","tipo":"herramienta","dueno":"pc.jugador"}],"atmosfera":"oscura","tropo":"cotidiano"}
 > Miro mi inventario.
-= {"acto":"revisar","objetivos":[],"movimiento":false,"lugar":"loc.espesura","valoracion":{"intensidad":0.1,"intimidad":0.0,"agresion":0.0,"exposicion":0.0,"afecto":0.0,"dominio":0.0,"reposo":0.3},"tags":[],"nuevos":[],"atmosfera":"oscura","tropo":"cotidiano"}
 > Salgo del bosque.
-= {"acto":"salir","objetivos":["loc.linde"],"movimiento":true,"lugar":"loc.linde","valoracion":{"intensidad":0.3,"intimidad":0.0,"agresion":0.0,"exposicion":0.0,"afecto":0.0,"dominio":0.1,"reposo":0.0},"tags":[],"nuevos":[{"slug":"loc.linde","nombre":"Linde del bosque","tipo":"campo"}],"atmosfera":"fria","tropo":"cotidiano"}

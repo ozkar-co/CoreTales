@@ -1,0 +1,7 @@
+# titulo: Hospital - guardia de noche
+> Soy enfermero de guardia. Llega una mujer con un corte profundo en la mano. No quiere dar su nombre.
+> Limpio la herida. Le pregunto quien se la hizo. No responde.
+> El medico de turno quiere darla de alta. Digo que todavia sangra.
+> Ella intenta irse. Le pido que se quede diez minutos mas.
+> Entra un hombre gritando su nombre: Clara. Ella se encoge.
+> Llamo a seguridad. El hombre se va. Clara se queda.

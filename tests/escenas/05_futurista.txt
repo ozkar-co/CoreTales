@@ -1,0 +1,6 @@
+# titulo: Futurista - estacion orbital
+> Despierto en una estacion orbital sobre Marte, las alarmas de oxigeno parpadean.
+> Reviso el panel: queda 12% de aire. Busco trajes en el armario.
+> Me pongo el traje y salgo al pasillo. Un tecnico yace inconsciente.
+> Arrastro al tecnico hasta la esclusa y cierro el compartimento que pierde aire.
+> Enciendo el generador de respaldo.
