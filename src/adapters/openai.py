@@ -23,6 +23,8 @@ class OpenAIAdapter:
         api_key: str | None = None,
         model: str | None = None,
         base_url: str = BASE_URL,
+        extra_headers: dict[str, str] | None = None,
+        brand: str = "OpenAI",
     ) -> None:
         load_dotenv()
         self.api_key = (api_key or os.environ.get("OPENAI_API_KEY") or "").strip()
@@ -32,6 +34,8 @@ class OpenAIAdapter:
             model or os.environ.get("OPENAI_MODEL") or DEFAULT_MODEL
         ).strip()
         self.base_url = base_url.rstrip("/")
+        self.extra_headers = extra_headers or {}
+        self._brand = brand
 
     @property
     def label(self) -> str:
@@ -45,6 +49,7 @@ class OpenAIAdapter:
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {self.api_key}",
+                **self.extra_headers,
             },
             method="POST",
         )
@@ -55,7 +60,7 @@ class OpenAIAdapter:
                     return json.loads(resp.read().decode("utf-8"))
             except urllib.error.HTTPError as e:
                 detail = e.read().decode("utf-8", errors="replace")
-                last_err = RuntimeError(f"OpenAI HTTP {e.code}: {detail}")
+                last_err = RuntimeError(f"{self._brand} HTTP {e.code}: {detail}")
                 if e.code != 429:
                     raise last_err from e
                 espera = 2.0 * (intento + 1)
@@ -64,8 +69,8 @@ class OpenAIAdapter:
                     espera = max(espera, float(m.group(1)) + 0.4)
                 time.sleep(espera)
             except urllib.error.URLError as e:
-                raise RuntimeError(f"OpenAI no responde ({e.reason})") from e
-        raise last_err or RuntimeError("OpenAI 429 persistente")
+                raise RuntimeError(f"{self._brand} no responde ({e.reason})") from e
+        raise last_err or RuntimeError(f"{self._brand} 429 persistente")
 
     def complete(
         self,
@@ -92,11 +97,11 @@ class OpenAIAdapter:
             text = choice["message"].get("content")
             if not isinstance(text, str) or not text.strip():
                 raise RuntimeError(
-                    f"OpenAI sin texto (finish={choice.get('finish_reason')})"
+                    f"{self._brand} sin texto (finish={choice.get('finish_reason')})"
                 )
             return text
         except (KeyError, IndexError, TypeError) as e:
-            raise RuntimeError(f"Respuesta OpenAI inesperada: {payload!r}") from e
+            raise RuntimeError(f"Respuesta {self._brand} inesperada: {payload!r}") from e
 
     def chat(
         self,
@@ -117,7 +122,7 @@ class OpenAIAdapter:
         try:
             msg = payload["choices"][0]["message"]
         except (KeyError, IndexError, TypeError) as e:
-            raise RuntimeError(f"Respuesta OpenAI inesperada: {payload!r}") from e
+            raise RuntimeError(f"Respuesta {self._brand} inesperada: {payload!r}") from e
         calls = []
         for raw in msg.get("tool_calls") or []:
             fn = raw.get("function") or {}

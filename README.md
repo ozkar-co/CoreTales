@@ -31,6 +31,15 @@ python3 tests/run.py 04_bosque
 
 Hace falta `OPENAI_API_KEY` en `.env`. El modelo por defecto es `gpt-4o`.
 
+OpenRouter (p. ej. Venice sin filtro):
+
+```bash
+CORE_TALES_LLM=openrouter ./scripts/run.sh
+CORE_TALES_LLM=openrouter python3 tests/run.py 39_venice
+```
+
+Clave: `OPENROUTER_API_KEY`. Modelo: `OPENROUTER_MODEL` o `cognitivecomputations/dolphin-mistral-24b-venice-edition`.
+
 El jugador solo ve prosa. Ctrl-D o Ctrl-C para salir. Tras un turno, el estado está en `saves/default.sqlite` y el chat (input, debug, prosa) en `saves/default.journal.txt`.
 
 Si la partida es del motor anterior, borra `saves/default.sqlite`.

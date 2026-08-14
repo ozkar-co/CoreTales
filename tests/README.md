@@ -32,3 +32,4 @@ Cada corrida deja en `tests/logs/` un `.journal.txt` (input, tools, prosa) y un 
 | 33 medieval | 34 comedia |
 | 35 tren | 36 huelga |
 | 37 isla | 38 burocracia |
+| 39 venice (OpenRouter) | |
