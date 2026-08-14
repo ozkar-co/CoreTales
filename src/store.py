@@ -137,12 +137,13 @@ class Store:
         if row:
             return int(row["id"])
         toks = _tokens(raw)
-        if toks:
-            clave = max(toks, key=len)
+        if len(toks) == 1:
+            clave = toks[0]
             if len(clave) >= 3:
                 row = self.conn.execute(
-                    "SELECT id FROM entidades WHERE lower(nombre) LIKE lower(?) LIMIT 1",
-                    (f"%{clave}%",),
+                    "SELECT id FROM entidades WHERE lower(nombre) LIKE lower(?) "
+                    "AND length(nombre) >= ? LIMIT 1",
+                    (f"%{clave}%", len(raw)),
                 ).fetchone()
                 if row:
                     return int(row["id"])
