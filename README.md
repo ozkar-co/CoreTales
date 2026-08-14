@@ -38,4 +38,4 @@ python3 scripts/fill_catalog.py     # lugares, atmósferas y nubes (cupos + cruc
 python3 scripts/fill_catalog.py --frases  # solo completar frases.txt
 ```
 
-El jugador solo ve prosa. Ctrl-D o Ctrl-C para salir. Tras un turno exitoso, el estado ya está en `saves/default.sqlite`.
+El jugador solo ve prosa. Ctrl-D o Ctrl-C para salir. Tras un turno exitoso, el estado ya está en `saves/default.sqlite` y el log humano en `saves/default.journal.txt`.

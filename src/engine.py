@@ -71,19 +71,21 @@ class Engine:
     def turn(self, player: str) -> str:
         user = self.store.translate_packet(player)
         intent = self._complete_intent(user)
+        intent = self.store.patch_intent(player, intent)
         self.store.begin()
         try:
-            self.store.apply_intent(intent)
+            self.store.apply_intent(intent, player)
             pack = self.store.narration_packet(player, intent)
             prose = self._complete_prose(pack)
             if not prose:
                 raise RuntimeError("prosa vacía")
             self.store.append_prose(prose)
             self.store.commit()
-            return prose
         except Exception:
             self.store.rollback()
             raise
+        self.store.flush_journal(player, intent, prose)
+        return prose
 
     def _complete_intent(self, user: str) -> dict[str, Any]:
         raw = self.llm.complete(
@@ -127,5 +129,5 @@ class Engine:
             temperature=0.7,
             max_tokens=400,
         )
-        _log_debug("etapa2", raw)
+        _log_debug("etapa2", f"{len(raw)} chars")
         return _unwrap_prose(raw)

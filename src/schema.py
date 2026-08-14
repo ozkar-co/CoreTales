@@ -103,5 +103,5 @@ ANCHOR_FILE = {
 SLUG_PREFIX = ("pc.", "npc.", "loc.")
 MAX_NUEVOS = 4
 MAX_TAGS = 6
-SAMPLE_FRASES = 12
+SAMPLE_FRASES = 6
 CORE_KEYS = ("afinidad", "dominancia", "estres")
